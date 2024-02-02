@@ -34,8 +34,7 @@ fn main() {
   let mut visited: HashSet<BeamState> = HashSet::new();
   let mut to_visit: Vec<BeamState> = Vec::new();
   to_visit.push((0, 0, Right));
-  while !to_visit.is_empty() {
-    let next = to_visit.pop().unwrap();
+  while let Some(next) = to_visit.pop() {
     let (i, j, dir) = next;
     if visited.contains(&next) {
       continue;

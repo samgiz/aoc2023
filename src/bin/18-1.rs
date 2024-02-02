@@ -1,6 +1,4 @@
-use std::cmp::Ordering;
 use std::io;
-use std::collections::{BinaryHeap, HashSet};
 
 #[derive(PartialEq, Eq, Hash, Copy, Clone, Ord, PartialOrd)]
 enum Direction {
@@ -60,9 +58,7 @@ fn dfs(board: &mut Vec<Vec<u8>>, row: usize, col: usize) -> Option<u64> {
   board[row][col] = b'v';
   let mut amount = 0;
   let mut return_none = false;
-  while !to_visit.is_empty() {
-    // dbg!(to_visit.len());
-    let cur = to_visit.pop().unwrap();
+  while let Some(cur) = to_visit.pop() {
     amount += 1;
     for dir in [Up, Down, Left, Right] {
       let next = cur.move_in(dir, board);
@@ -114,7 +110,6 @@ fn main() {
     col_max = max(col, col_max);
     col_min = min(col, col_min);
   }
-  // dbg!(row_max, row_min, col_max, col_min);
   let row_size = (row_max - row_min + 1) as usize;
   let col_size = (col_max - col_min + 1) as usize;
   let mut current_location = Location {
@@ -137,9 +132,8 @@ fn main() {
     for j in 0..board[0].len() {
       if board[i][j] == b'.' {
         let answer = dfs(&mut board, i, j);
-        match answer {
-          Some(answer) => println!("{}", answer + already_dug_out),
-          None => ()
+        if let Some(answer) = answer {
+          println!("{}", answer + already_dug_out)
         }
       }
     }

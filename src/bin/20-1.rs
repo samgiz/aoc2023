@@ -37,14 +37,13 @@ impl Module {
       }
       Module::Conjunction(conjunction) => {
         let last_state = conjunction.state.get(from);
-        if signal == High && (last_state == None || last_state.unwrap() == &Low) {
+        if signal == High && (last_state.is_none() || last_state.unwrap() == &Low) {
           conjunction.num_active += 1;
-        } else if signal == Low && (last_state != None && last_state.unwrap() == &High) {
+        } else if signal == Low && (last_state.is_some() && last_state.unwrap() == &High) {
           conjunction.num_active -= 1;
         }
         conjunction.state.insert(from.to_string(), signal);
-        // dbg!(conjunction.num_inputs);
-        if conjunction.num_active == conjunction.num_inputs as u64 {
+        if conjunction.num_active == conjunction.num_inputs {
           conjunction.labels.iter().map(|label|(label, Low)).collect()
         } else {
           conjunction.labels.iter().map(|label|(label, High)).collect()
@@ -112,14 +111,8 @@ fn main() {
   });
   amount_sent_to.iter().for_each(|(label, amount)| {
     let module_to_process = modules.get_mut(label);
-    match module_to_process {
-      Some(module) => {
-        match module {
-            Module::Conjunction(conjunction) => conjunction.num_inputs = *amount,
-            _ => ()
-        }
-      }
-      None => ()
+    if let Some(Module::Conjunction(conjunction)) = module_to_process {
+      conjunction.num_inputs = *amount
     }
   });
   let mut num_lows: u64 = 0;
@@ -134,20 +127,12 @@ fn main() {
         Low => num_lows += 1,
         High => num_highs += 1
       }
-      // let module = &modules.get_mut(to_label).unwrap();
-      // dbg!(to_label.clone());
       let module_to_process = modules.get_mut(&to_label);
-      match module_to_process {
-        Some(module) => {
-          // dbg!(module.clone());
-          // dbg!(pulse);
-          let new_to_visit = module.receive(pulse, &from_label);
-          new_to_visit.iter().for_each(|(label, signal)| {
-            to_visit.push_back((to_label.clone(), label.to_string(), *signal));
-          });
-          // dbg!(module.clone());
-        }
-        None => ()
+      if let Some(module) = module_to_process {
+        let new_to_visit = module.receive(pulse, &from_label);
+        new_to_visit.iter().for_each(|(label, signal)| {
+          to_visit.push_back((to_label.clone(), label.to_string(), *signal));
+        });
       }
     }
   }

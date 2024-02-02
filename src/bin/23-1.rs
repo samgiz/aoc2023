@@ -1,7 +1,6 @@
 use std::io;
 
 fn dfs((row, col): (usize, usize), visited: &mut Vec<Vec<bool>>, board: &Vec<Vec<u8>>) -> Option<u64> {
-  // dbg!(row, col);
   if row == board.len() - 1 {
     return Some(0);
   }

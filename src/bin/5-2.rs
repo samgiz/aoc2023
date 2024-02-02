@@ -32,7 +32,7 @@ fn remap(mut seed: (i64, i64), map: &BTreeMap<i64, (i64, i64)>) -> Vec<(i64, i64
   if seed.1 > 0 {
     answer.push(seed);
   }
-  return answer;
+  answer
 }
 
 fn main() {
@@ -49,16 +49,16 @@ fn main() {
   let mut map: BTreeMap<i64, (i64, i64)> = BTreeMap::new();
   for line in lines {
     let line = line.unwrap();
-    if line.ends_with(":") {
+    if line.ends_with(':') {
       continue;
     }
-    if line == "" {
+    if line.is_empty() {
       // We want to re-map our seeds with the map that we've constructed so far
       seeds = seeds.iter().flat_map(|seed| remap(*seed, &map)).collect();
       map.clear();
     } else {
       // update the map with the new entry
-      let [after, before, amount]: [i64; 3] = line.split(" ").map(|x| x.parse::<i64>().unwrap()).collect::<Vec<i64>>().try_into().unwrap();
+      let [after, before, amount]: [i64; 3] = line.split(' ').map(|x| x.parse::<i64>().unwrap()).collect::<Vec<i64>>().try_into().unwrap();
       map.insert(before, (amount, after));
     }
   }

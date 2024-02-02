@@ -33,8 +33,7 @@ fn energized_from_starting_position(starting_position: BeamState, board: &Vec<Ve
   let mut to_visit: Vec<BeamState> = Vec::new();
   let mut visited: HashSet<BeamState> = HashSet::new();
   to_visit.push(starting_position);
-  while !to_visit.is_empty() {
-    let next = to_visit.pop().unwrap();
+  while let Some(next) = to_visit.pop() {
     let (i, j, dir) = next;
     if visited.contains(&next) {
       continue;
@@ -42,39 +41,39 @@ fn energized_from_starting_position(starting_position: BeamState, board: &Vec<Ve
     visited.insert(next);
     match board[i][j] {
       b'.' => {
-        add_if_valid(move_in(i, j, dir), dir, &board, &mut to_visit);
+        add_if_valid(move_in(i, j, dir), dir, board, &mut to_visit);
       }
       b'/' => {
         match dir {
-          Left => add_if_valid(move_in(i, j, Down), Down, &board, &mut to_visit),
-          Down => add_if_valid(move_in(i, j, Left), Left, &board, &mut to_visit),
-          Right => add_if_valid(move_in(i, j, Up), Up, &board, &mut to_visit),
-          Up => add_if_valid(move_in(i, j, Right), Right, &board, &mut to_visit),
+          Left => add_if_valid(move_in(i, j, Down), Down, board, &mut to_visit),
+          Down => add_if_valid(move_in(i, j, Left), Left, board, &mut to_visit),
+          Right => add_if_valid(move_in(i, j, Up), Up, board, &mut to_visit),
+          Up => add_if_valid(move_in(i, j, Right), Right, board, &mut to_visit),
         }
       }
       b'\\' => {
         match dir {
-          Right => add_if_valid(move_in(i, j, Down), Down, &board, &mut to_visit),
-          Up => add_if_valid(move_in(i, j, Left), Left, &board, &mut to_visit),
-          Left => add_if_valid(move_in(i, j, Up), Up, &board, &mut to_visit),
-          Down => add_if_valid(move_in(i, j, Right), Right, &board, &mut to_visit),
+          Right => add_if_valid(move_in(i, j, Down), Down, board, &mut to_visit),
+          Up => add_if_valid(move_in(i, j, Left), Left, board, &mut to_visit),
+          Left => add_if_valid(move_in(i, j, Up), Up, board, &mut to_visit),
+          Down => add_if_valid(move_in(i, j, Right), Right, board, &mut to_visit),
         }
       }
       b'|' => {
         match dir {
-          Up | Down => add_if_valid(move_in(i, j, dir), dir, &board, &mut to_visit),
+          Up | Down => add_if_valid(move_in(i, j, dir), dir, board, &mut to_visit),
           Right | Left => {
-            add_if_valid(move_in(i, j, Up), Up, &board, &mut to_visit);
-            add_if_valid(move_in(i, j, Down), Down, &board, &mut to_visit);
+            add_if_valid(move_in(i, j, Up), Up, board, &mut to_visit);
+            add_if_valid(move_in(i, j, Down), Down, board, &mut to_visit);
           }
         }
       }
       b'-' => {
         match dir {
-          Right | Left => add_if_valid(move_in(i, j, dir), dir, &board, &mut to_visit),
+          Right | Left => add_if_valid(move_in(i, j, dir), dir, board, &mut to_visit),
           Up | Down => {
-            add_if_valid(move_in(i, j, Left), Left, &board, &mut to_visit);
-            add_if_valid(move_in(i, j, Right), Right, &board, &mut to_visit);
+            add_if_valid(move_in(i, j, Left), Left, board, &mut to_visit);
+            add_if_valid(move_in(i, j, Right), Right, board, &mut to_visit);
           }
         }
       }

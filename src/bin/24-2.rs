@@ -36,7 +36,7 @@ fn main() {
   });
   // x = p[0], p[1], p[2], v[0], v[1], v[2]
   
-  let A: Array2<f64> = array![
+  let a: Array2<f64> = array![
 // RHS[0] = p[1] * v_i[2] - p_i[1] * v_i[2] + p_i[1] * v[2] - 
 //        - p[2] * v_i[1] + p_i[2] * v_i[1] - p_i[2] * v[1]
 //        = p[1] * v_j[2] - p_j[1] * v_j[2] + p_j[1] * v[2] - 
@@ -58,10 +58,10 @@ fn main() {
     -(p_i[0][0] * v_i[0][2] - p_i[0][2] * v_i[0][0] + p_i[2][2] * v_i[2][0] - p_i[2][0] * v_i[2][2]),
     -(p_i[0][1] * v_i[0][0] - p_i[0][0] * v_i[0][1] + p_i[2][0] * v_i[2][1] - p_i[2][1] * v_i[2][0]),
   ];
-  dbg!(A.clone());
+  dbg!(a.clone());
   dbg!(b.clone());
   
-  let x = A.solve_into(b.clone()).unwrap();
+  let x = a.solve_into(b.clone()).unwrap();
   println!("{}", x[0] + x[1] + x[2]);
   // This solution gives me an answer of 540355811503156.25
   // The actual answer is 540355811503157 

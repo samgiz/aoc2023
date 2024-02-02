@@ -7,10 +7,9 @@ struct Workflow {
 impl Workflow {
   fn get_next_label(&self, mut part: Part, parts: &mut Vec<(Part, Vec<u8>)>) {
     for rule in &self.rules {
-      let (left, right) = part.satisfies(&rule);
-      match right {
-        Some(right) => parts.push((right, rule.next_label.clone())),
-        None => ()
+      let (left, right) = part.satisfies(rule);
+      if let Some(right) = right {
+        parts.push((right, rule.next_label.clone()))
       }
       match left {
         None => return,
@@ -35,10 +34,10 @@ impl Part {
       None => (None, Some(*self)),
       Some(condition) => {
         let (low, high) = match condition.category {
-          Category::m => self.m,
-          Category::a => self.a,
-          Category::x => self.x,
-          Category::s => self.s
+          Category::M => self.m,
+          Category::A => self.a,
+          Category::X => self.x,
+          Category::S => self.s
         };
         let part1_values = match condition.operator {
           LessThan => {
@@ -80,68 +79,62 @@ impl Part {
             }
           }
         };
-        let part1 = match part1_values {
-          None => None,
-          Some(values) => {
-            Some(match condition.category {
-              Category::m => Part {
-                x: self.x,
-                m: values,
-                a: self.a,
-                s: self.s
-              },
-              Category::a => Part {
-                x: self.x,
-                m: self.m,
-                a: values,
-                s: self.s
-              },
-              Category::x => Part {
-                x: values,
-                m: self.m,
-                a: self.a,
-                s: self.s
-              },
-              Category::s => Part {
-                x: self.x,
-                m: self.m,
-                a: self.a,
-                s: values
-              },
-            })
+        let part1 = part1_values.map(
+          |values| match condition.category {
+            Category::M => Part {
+              x: self.x,
+              m: values,
+              a: self.a,
+              s: self.s
+            },
+            Category::A => Part {
+              x: self.x,
+              m: self.m,
+              a: values,
+              s: self.s
+            },
+            Category::X => Part {
+              x: values,
+              m: self.m,
+              a: self.a,
+              s: self.s
+            },
+            Category::S => Part {
+              x: self.x,
+              m: self.m,
+              a: self.a,
+              s: values
+            },
           }
-        };
-        let part2 = match part2_values {
-          None => None,
-          Some(values) => {
-            Some(match condition.category {
-              Category::m => Part {
-                x: self.x,
-                m: values,
-                a: self.a,
-                s: self.s
-              },
-              Category::a => Part {
-                x: self.x,
-                m: self.m,
-                a: values,
-                s: self.s
-              },
-              Category::x => Part {
-                x: values,
-                m: self.m,
-                a: self.a,
-                s: self.s
-              },
-              Category::s => Part {
-                x: self.x,
-                m: self.m,
-                a: self.a,
-                s: values
-              },
-            })
+        );
+        let part2 = part2_values.map(
+          |values| match condition.category {
+            Category::M => Part {
+              x: self.x,
+              m: values,
+              a: self.a,
+              s: self.s
+            },
+            Category::A => Part {
+              x: self.x,
+              m: self.m,
+              a: values,
+              s: self.s
+            },
+            Category::X => Part {
+              x: values,
+              m: self.m,
+              a: self.a,
+              s: self.s
+            },
+            Category::S => Part {
+              x: self.x,
+              m: self.m,
+              a: self.a,
+              s: values
+            },
           }
-        };
+        );
         (part1, part2)
       }
     }
@@ -149,10 +142,10 @@ impl Part {
 }
 
 enum Category {
-  x,
-  m,
-  a,
-  s
+  X,
+  M,
+  A,
+  S
 }
 
 impl From<u8> for ComparisonOperator {
@@ -172,10 +165,10 @@ enum ComparisonOperator {
 impl From<u8> for Category {
   fn from(value: u8) -> Self {
     match value {
-      b'x' => Category::x,
-      b'm' => Category::m,
-      b'a' => Category::a,
-      b's' => Category::s,
+      b'x' => Category::X,
+      b'm' => Category::M,
+      b'a' => Category::A,
+      b's' => Category::S,
       _ => panic!("Invalid value passed to Category::from: {value}")
     } 
   }
@@ -205,7 +198,6 @@ fn main() {
     let [label, rest]: [&[u8]; 2] = line.split(|&x| x == b'{').collect::<Vec<&[u8]>>().try_into().unwrap();
     let workflow = &rest[..rest.len()-1];
     let rules = workflow.split(|&x|x == b',');
-    // dbg!(rules.clone().map(|x|x.iter().map(|&x| x as char).collect::<String>()).collect::<Vec<_>>());
     let rules = rules.map(|rule| {
       if rule.split(|&x| x == b':').count() == 1 {
         return Rule {
@@ -235,8 +227,7 @@ fn main() {
     s: (1, 4001)
   }, vec!(b'i', b'n')));
   let mut answer: i64 = 0;
-  while !parts.is_empty() {
-    let (part, label) = parts.pop().unwrap();
+  while let Some((part, label)) = parts.pop() {
     if label == b"R" {
       continue;
     } else if label == b"A" {

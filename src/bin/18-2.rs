@@ -1,6 +1,5 @@
-use std::cmp::Ordering;
 use std::io;
-use std::collections::{BinaryHeap, HashSet, BTreeSet};
+use std::collections::BTreeSet;
 
 #[derive(PartialEq, Eq, Hash, Copy, Clone, Ord, PartialOrd, Debug)]
 enum Direction {
@@ -15,25 +14,6 @@ use Direction::*;
 struct Location {
   col: usize,
   row: usize,
-}
-
-impl Location {
-  fn move_in(&self, dir: Direction, board: &Vec<Vec<u8>>) -> Option<Location> {
-    let (new_row, new_col) = match dir {
-      Up => (self.row as i64 - 1, self.col as i64),
-      Down => (self.row as i64 + 1, self.col as i64),
-      Right => (self.row as i64, self.col as i64 + 1),
-      Left => (self.row as i64, self.col as i64 - 1)
-    };
-    if new_row < 0 || new_col < 0 || new_row >= board.len() as i64 || new_col >= board[0].len() as i64 {
-      None
-    } else {
-      Some(Location {
-        row: new_row as usize,
-        col: new_col as usize
-      })
-    }
-  }
 }
 
 #[derive(PartialEq, Debug, Clone, Copy)]
@@ -52,12 +32,6 @@ impl From<u8> for Direction {
       _ => panic!("Invalid character passed to direction")
     }
   }
-}
-
-struct Vertical {
-  col: i64,
-  top: i64,
-  bottom: i64
 }
 
 struct Horizontal {
@@ -153,7 +127,7 @@ impl Intervals {
       if i.right - i.left < 1 {
         continue;
       }
-      if new_v.len() > 0 && i.state == new_v.last().unwrap().state {
+      if !new_v.is_empty() && i.state == new_v.last().unwrap().state {
         // Combine the two intervals
         new_v.last_mut().unwrap().right = i.right;
       } else {
@@ -161,7 +135,7 @@ impl Intervals {
       }
     }
     for i in self.v[index+1..].iter() {
-      if new_v.len() > 0 && i.state == new_v.last().unwrap().state {
+      if !new_v.is_empty() && i.state == new_v.last().unwrap().state {
         // Combine the two intervals
         new_v.last_mut().unwrap().right = i.right;
       } else {
@@ -259,15 +233,15 @@ fn main() {
     state: Outside
   });
   let mut answer = 0;
-  let rows_of_interest: Vec<i64> = rows_of_interest.iter().map(|x| *x).collect();
+  let rows_of_interest: Vec<i64> = rows_of_interest.iter().copied().collect();
   for (i, &row) in rows_of_interest.iter().enumerate() {
     let to_process = horizontals.iter().filter(|x| x.row == row);
     let to_process_first: Vec<_> = to_process.clone().filter(|x| current_intervals.get_state(x.left, x.right) == Outside).collect();
     let to_process_second: Vec<_> = to_process.filter(|x| current_intervals.get_state(x.left, x.right) == Inside).collect();
-    to_process_first.iter().for_each(|&Horizontal {row, left, right}| current_intervals.flip(*left, *right));
+    to_process_first.iter().for_each(|&Horizontal {left, right, ..}| current_intervals.flip(*left, *right));
     answer += current_intervals.get_num_inside();
     if i != rows_of_interest.len()-1 {
-      to_process_second.iter().for_each(|&Horizontal {row, left, right}| current_intervals.flip(*left, *right));
+      to_process_second.iter().for_each(|&Horizontal {left, right, ..}| current_intervals.flip(*left, *right));
       let next_row = rows_of_interest[i+1];
       let amount = (next_row - row - 1) as u64;
       answer += amount * current_intervals.get_num_inside();

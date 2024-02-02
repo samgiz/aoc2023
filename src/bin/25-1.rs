@@ -36,7 +36,7 @@ fn mark_reachable_nodes(residual_graph: &Vec<Vec<(usize, usize)>>, current: usiz
   answer
 }
 
-fn update_residual_graph(residual_graph: &mut Vec<Vec<(usize, usize)>>, path: &[usize]) {
+fn update_residual_graph(residual_graph: &mut [Vec<(usize, usize)>], path: &[usize]) {
   for window in path.windows(2) {
     let (from, to) = (window[0], window[1]);
     for i in 0..residual_graph[from].len() {
@@ -64,7 +64,6 @@ fn find_cut(source: usize, sink: usize, edges: &Vec<Vec<usize>>) -> Option<u64> 
 
   while let Some(p) = path {
     if max_flow >= 3 {
-      dbg!(max_flow);
       return None
     }
 
@@ -79,7 +78,6 @@ fn find_cut(source: usize, sink: usize, edges: &Vec<Vec<usize>>) -> Option<u64> 
     let mut p = Vec::new();
     path = find_path(&residual_graph, source, sink, &mut visited, &mut p);
   }
-  // dbg!(max_flow);
   // Once no augmenting path is found, find and return the minimum cut
   let min_cut_edges = find_min_cut(&residual_graph, source);
 
@@ -93,7 +91,7 @@ fn main() {
     let line = line.unwrap();
 
     let [lhs, rhs]: [&str; 2] = line.split(": ").collect::<Vec<_>>().try_into().unwrap();
-    let rhs = rhs.split(" ").collect::<Vec<_>>();
+    let rhs = rhs.split(' ').collect::<Vec<_>>();
     if !name_to_index.contains_key(lhs) {
       name_to_index.insert(lhs.to_string(), edges.len());
       edges.push(Vec::new());
@@ -110,12 +108,9 @@ fn main() {
   let source = 0;
   for sink in 1..edges.len() {
     let answer = find_cut(source, sink, &edges);
-    match answer {
-      Some(answer) => {
-        println!("{answer}");
-        break;
-      }
-      None => ()
+    if let Some(answer) = answer {
+      println!("{answer}");
+      break;
     }
   }
 }

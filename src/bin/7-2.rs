@@ -53,13 +53,13 @@ enum Rank {
 
 impl From<&[Card; 5]> for Rank {
   fn from(c: &[Card; 5]) -> Rank {
-    let mut c = c.iter().map(|x| *x).collect::<Counter<Card, usize>>();
+    let mut c = c.iter().copied().collect::<Counter<Card, usize>>();
     let num_jacks = if c.contains_key(&Card::Jack) {
       let tp = c[&Card::Jack];
       c.remove(&Card::Jack);
       tp
     } else { 0 };
-    let mut sorted_values = c.values().map(|x| *x).collect::<Vec<usize>>();
+    let mut sorted_values = c.values().copied().collect::<Vec<usize>>();
     sorted_values.sort();
     let last = sorted_values.last_mut();
     match last {

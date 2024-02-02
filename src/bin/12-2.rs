@@ -28,7 +28,7 @@ fn main() {
     // * The amount of consecutive # characters we've had
     // For each state we want to compute of the number of ways that state can be achieved.
     // The answer then becomes dp[record.len()][sizes.len()][Dot] + dp[record.len()][sizes.len()][Hash]
-    let mut dp = vec!(vec!(vec!(0 as u64; record.len()+1); sizes.len()+1); record.len()+1);
+    let mut dp = vec!(vec!(vec!(0; record.len()+1); sizes.len()+1); record.len()+1);
     dp[0][0][0] = 1;
     for record_i in 0..record.len() {
       let current_chars = get_chars(record[record_i]);

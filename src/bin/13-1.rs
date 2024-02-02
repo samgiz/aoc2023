@@ -3,8 +3,8 @@ use std::io;
 fn rotate(matrix: Vec<Vec<u8>>) -> Vec<Vec<u8>> {
   let mut new_matrix = vec![vec![0; matrix.len()]; matrix[0].len()];
   for i in 0..matrix.len() {
-    for j in 0..matrix[0].len() {
-      new_matrix[j][matrix.len()-1-i] = matrix[i][j]
+    for (j, &value) in matrix[i].iter().enumerate() {
+      new_matrix[j][matrix.len()-1-i] = value
       // 2x2 matrix
       // 0,0 => 0,1
     }

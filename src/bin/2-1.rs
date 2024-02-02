@@ -8,10 +8,10 @@ struct Cubes {
 
 impl Cubes {
   fn contains(&self, other: &Cubes) -> bool {
-    return self.red >= other.red && self.blue >= other.blue && self.green >= other.green;
+    self.red >= other.red && self.blue >= other.blue && self.green >= other.green
   }
   fn new() -> Cubes {
-    return Cubes {red:0, green:0, blue:0};
+    Cubes {red:0, green:0, blue:0}
   }
 }
 

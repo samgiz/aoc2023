@@ -15,7 +15,7 @@ fn main() {
   let mut visited = HashMap::new();
   let mut to_visit = VecDeque::new();
   to_visit.push_back(starting_position);
-  visited.insert(starting_position, 0 as u64);
+  visited.insert(starting_position, 0_u64);
 
   while !to_visit.is_empty() {
     let (row, col) = to_visit.pop_front().unwrap();

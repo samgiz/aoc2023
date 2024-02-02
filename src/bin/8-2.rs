@@ -1,4 +1,4 @@
-use std::{io, collections::{HashMap, HashSet}};
+use std::{io, collections::HashMap};
 use itertools::Itertools;
 
 fn egcd(a: i64, b: i64) -> (i64, i64, i64) {
@@ -38,7 +38,7 @@ fn chinese_remainder(residues: &[&i64], modulii: &[i64]) -> Option<i64> {
 }
 
 fn earliest_start(cycle_lengths: &[i64], offsets: &[&i64]) -> Option<i64> {
-  return chinese_remainder(offsets, cycle_lengths);
+  chinese_remainder(offsets, cycle_lengths)
 }
 
 fn main() {
@@ -64,14 +64,14 @@ fn main() {
   }
   // Make the labels immutable
   let labels = labels;
-  let mut current = labels.iter().filter(|x|x.ends_with("A")).collect::<Vec<&String>>();
+  let current = labels.iter().filter(|x|x.ends_with('A')).collect::<Vec<&String>>();
   // We want to collect the following:
   // 1. the period of repetition.
   // 2. the start of the loop
   // 3. within the loop, the position / end leaf combinations that we encounter.
   let dp: Vec<_> = current.iter().map(|starting_label| {
     let mut visited: HashMap<(String, _), _> = HashMap::new();
-    visited.insert((starting_label.clone().clone(), directions.len()-1), 0);
+    visited.insert(((*starting_label).clone(), directions.len()-1), 0);
     let mut label = *starting_label;
     for i in 1.. {
       let dir_index = (i-1) % directions.len();
@@ -99,12 +99,10 @@ fn main() {
         });
         return (cycle_length, end_label_mapping);
       }
-      // dbg!((label.clone(), move_index));
       visited.insert((label.clone(), move_index), i);
     }
     panic!("not supposed to reach this!");
   }).collect();
-  dbg!(dp.clone());
   // Then we will go over all positions in the LR sequence and apply
   // Chinese remainder theorem over all possible combinations that might end at that sequence.
   let mut cycle_lengths: Vec<_> = dp.iter().map(|(cycle_length, _)| *cycle_length as i64).collect();
@@ -119,24 +117,11 @@ fn main() {
       let index = index as i64;
       offsets.push(&index);
       assert_eq!(cycle_lengths.len(), offsets.len());
-      dbg!(offsets.clone(), cycle_lengths.clone());
-      answer = match earliest_start(cycle_lengths.as_slice(), offsets.as_slice()) {
+d      answer = match earliest_start(cycle_lengths.as_slice(), offsets.as_slice()) {
         None => answer,
         Some(val) => if answer == -1 {val} else {std::cmp::min(val, answer)}
       };
     }
   }
-  // for i in 1.. {
-  //   let direction = directions[(i-1) % directions.len()];
-  //   current = match direction {
-  //     b'R' => current.iter().map(|x| &next_right[*x]).collect(),
-  //     b'L' => current.iter().map(|x| &next_left[*x]).collect(),
-  //     _ => panic!("this is not supposed to happen")
-  //   };
-  //   if current.iter().all(|x| x.ends_with('Z')) {
-  //     println!("{i}");
-  //     break;
-  //   }
-  // }
   println!("{}", answer);
 }

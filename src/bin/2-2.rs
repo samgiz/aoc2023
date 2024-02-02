@@ -13,7 +13,7 @@ impl Cubes {
     self.blue = std::cmp::max(self.blue, other.blue);
   }
   fn new() -> Cubes {
-    return Cubes {red:0, green:0, blue:0};
+    Cubes {red:0, green:0, blue:0}
   }
 }
 

@@ -48,12 +48,13 @@ impl QueueState {
       Right => (self.row as i64, self.col as i64 + 1),
       Left => (self.row as i64, self.col as i64 - 1)
     };
-    if new_row < 0 || new_col < 0 || new_row >= board.len() as i64 || new_col >= board[0].len() as i64 {
+    if new_row < 0 ||
+       new_col < 0 ||
+       new_row >= board.len() as i64 ||
+       new_col >= board[0].len() as i64 ||
+       (dir == self.dir && self.num_forward == 10) ||
+       (dir != self.dir && self.num_forward > 0 && self.num_forward < 4) {
       None
-    } else if dir == self.dir && self.num_forward == 10 {
-      None
-    } else if dir != self.dir && self.num_forward > 0 && self.num_forward < 4 {
-      None 
     } else {
       Some(QueueState {
         row: new_row as usize,
@@ -92,7 +93,7 @@ struct VisitedState {
 
 impl From<&QueueState> for VisitedState {
     fn from(state: &QueueState) -> Self {
-      return VisitedState {
+      VisitedState {
         row: state.row, 
         col: state.col,
         num_forward: state.num_forward,

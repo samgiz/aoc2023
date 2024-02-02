@@ -20,20 +20,20 @@ fn is_symbol(text: &Vec<String>, row: i64, col: i64) -> bool {
 impl Number {
   fn is_part(&self, text: &Vec<String>) -> bool {
     for i in 0..=(self.length+1) {
-      if is_symbol(&text, self.row-1, self.col + (i as i64) - 1) {
+      if is_symbol(text, self.row-1, self.col + (i as i64) - 1) {
         return true;
       }
-      if is_symbol(&text, self.row+1, self.col + (i as i64) - 1) {
+      if is_symbol(text, self.row+1, self.col + (i as i64) - 1) {
         return true;
       }
     }
-    if is_symbol(&text, self.row, self.col - 1) {
+    if is_symbol(text, self.row, self.col - 1) {
       return true;
     }
-    if is_symbol(&text, self.row, self.col + (self.length as i64)) {
+    if is_symbol(text, self.row, self.col + (self.length as i64)) {
       return true;
     }
-    return false;
+    false
   }
 }
 
@@ -43,7 +43,7 @@ fn find_numbers(text: &str, numbers: &mut Vec<Number>, row: i64) {
     let capture = capture.get(0).unwrap();
     numbers.push(Number {
       value: capture.as_str().parse::<u64>().unwrap(),
-      row: row, 
+      row, 
       col: (capture.start() as i64),
       length: capture.len()
     });

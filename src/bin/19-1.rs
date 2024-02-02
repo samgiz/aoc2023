@@ -1,4 +1,4 @@
-use std::{io, collections::HashMap, thread::current};
+use std::{io, collections::HashMap};
 
 struct Workflow {
   rules: Vec<Rule>
@@ -7,7 +7,7 @@ struct Workflow {
 impl Workflow {
   fn get_next_label(&self, part: &Part) -> Vec<u8> {
     for rule in &self.rules {
-      if part.satisfies(&rule) {
+      if part.satisfies(rule) {
         return rule.next_label.clone();
       }
     }
@@ -28,10 +28,10 @@ impl Part {
       None => true,
       Some(condition) => {
         let value = match condition.category {
-          Category::m => self.m,
-          Category::a => self.a,
-          Category::x => self.x,
-          Category::s => self.s
+          Category::M => self.m,
+          Category::A => self.a,
+          Category::X => self.x,
+          Category::S => self.s
         };
         match condition.operator {
           LessThan => value < condition.amount,
@@ -43,10 +43,10 @@ impl Part {
 }
 
 enum Category {
-  x,
-  m,
-  a,
-  s
+  X,
+  M,
+  A,
+  S
 }
 
 impl From<u8> for ComparisonOperator {
@@ -66,10 +66,10 @@ enum ComparisonOperator {
 impl From<u8> for Category {
   fn from(value: u8) -> Self {
     match value {
-      b'x' => Category::x,
-      b'm' => Category::m,
-      b'a' => Category::a,
-      b's' => Category::s,
+      b'x' => Category::X,
+      b'm' => Category::M,
+      b'a' => Category::A,
+      b's' => Category::S,
       _ => panic!("Invalid value passed to Category::from: {value}")
     } 
   }
@@ -99,7 +99,6 @@ fn main() {
     let [label, rest]: [&[u8]; 2] = line.split(|&x| x == b'{').collect::<Vec<&[u8]>>().try_into().unwrap();
     let workflow = &rest[..rest.len()-1];
     let rules = workflow.split(|&x|x == b',');
-    // dbg!(rules.clone().map(|x|x.iter().map(|&x| x as char).collect::<String>()).collect::<Vec<_>>());
     let rules = rules.map(|rule| {
       if rule.split(|&x| x == b':').count() == 1 {
         return Rule {
@@ -137,7 +136,6 @@ fn main() {
     let mut current_label = vec!(b'i', b'n');
     while current_label != b"A" && current_label != b"R" {
       current_label = workflows[&current_label].get_next_label(&part);
-      // dbg!(current_label.iter().map(|&x| x as char).collect::<String>());
     }
     if current_label == b"A" {
       part.x + part.m + part.a + part.s

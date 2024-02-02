@@ -1,13 +1,12 @@
 use std::{io, collections::HashSet};
 
-fn find_edges(i: usize, intersections: &Vec<(usize, usize)>, board: &Vec<Vec<u8>>) -> Vec<(usize, u64)> {
+fn find_edges(i: usize, intersections: &[(usize, usize)], board: &Vec<Vec<u8>>) -> Vec<(usize, u64)> {
   let mut answer = Vec::new();
   let (row, col) = intersections[i];
   let mut visited = HashSet::new();
   visited.insert((row, col));
   let mut to_visit = vec!(((row, col), 0));
-  while !to_visit.is_empty() {
-    let ((row, col), length) = to_visit.pop().unwrap();
+  while let Some(((row, col), length)) = to_visit.pop() {
     if is_intersection(board, row, col) && (row, col) != intersections[i] {
       let neighbour = intersections.iter().position(|&(r, c)| r == row && c == col).unwrap();
       answer.push((neighbour, length));
@@ -48,7 +47,7 @@ fn is_intersection(board: &Vec<Vec<u8>>, row: usize, col: usize) -> bool {
       num_paths += 1;
     }
   }
-  return num_paths > 2;
+  num_paths > 2
 }
 
 fn find_longest_path(cur: usize, edges: &Vec<Vec<(usize, u64)>>, visited: &mut Vec<bool>) -> Option<u64> {

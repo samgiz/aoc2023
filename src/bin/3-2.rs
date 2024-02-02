@@ -30,20 +30,20 @@ impl Number {
   }
   fn annotate_possible_gears(&self, text: &Vec<String>, gears: &mut HashMap<(i64, i64), (u64, u64)>) {
     for i in 0..=(self.length+1) {
-      if is_star(&text, self.row-1, self.col + (i as i64) - 1) {
+      if is_star(text, self.row-1, self.col + (i as i64) - 1) {
         let key = (self.row-1, self.col + (i as i64) - 1);
         self.update_if_needed(gears, key)
       }
-      if is_star(&text, self.row+1, self.col + (i as i64) - 1) {
+      if is_star(text, self.row+1, self.col + (i as i64) - 1) {
         let key = (self.row+1, self.col + (i as i64) - 1);
         self.update_if_needed(gears, key)
       }
     }
-    if is_star(&text, self.row, self.col - 1) {
+    if is_star(text, self.row, self.col - 1) {
       let key = (self.row, self.col - 1);
       self.update_if_needed(gears, key)
     }
-    if is_star(&text, self.row, self.col + (self.length as i64)) {
+    if is_star(text, self.row, self.col + (self.length as i64)) {
       let key = (self.row, self.col + (self.length as i64));
       self.update_if_needed(gears, key)
     }
@@ -56,7 +56,7 @@ fn find_numbers(text: &str, numbers: &mut Vec<Number>, row: i64) {
     let capture = capture.get(0).unwrap();
     numbers.push(Number {
       value: capture.as_str().parse::<u64>().unwrap(),
-      row: row, 
+      row,
       col: (capture.start() as i64),
       length: capture.len()
     });

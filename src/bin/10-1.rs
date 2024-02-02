@@ -13,16 +13,16 @@ enum Pipe {
 use Pipe::*;
 impl Pipe {
   fn connects_left(&self) -> bool {
-    return self == &UpLeft || self == &DownLeft || self == &LeftRight;
+    self == &UpLeft || self == &DownLeft || self == &LeftRight
   }
   fn connects_right(&self) -> bool {
-    return self == &UpRight || self == &DownRight || self == &LeftRight;
+    self == &UpRight || self == &DownRight || self == &LeftRight
   }
   fn connects_up(&self) -> bool {
-    return self == &UpRight || self == &UpLeft || self == &UpDown;
+    self == &UpRight || self == &UpLeft || self == &UpDown
   }
   fn connects_down(&self) -> bool {
-    return self == &DownRight || self == &DownLeft || self == &UpDown;
+    self == &DownRight || self == &DownLeft || self == &UpDown
   }
 }
 
@@ -75,7 +75,7 @@ impl Tile {
       && other.pipe.connects_down() {
         return true;
     }
-    return false;
+    false
   }
 } 
 
@@ -96,17 +96,16 @@ fn main() {
     pipes
   }).collect::<Vec<_>>();
 
-  let starting_tile = (*board.iter().flat_map(|x|x).find(|t|t.pipe == Animal).unwrap()).clone();
+  let starting_tile = (*board.iter().flatten().find(|t|t.pipe == Animal).unwrap()).clone();
   
   for pipe in [UpRight, UpDown, UpLeft, DownLeft, DownRight, LeftRight] {
-    board[starting_tile.row][starting_tile.col].pipe = pipe.clone();
+    board[starting_tile.row][starting_tile.col].pipe = pipe;
     let mut q = VecDeque::new();
     let mut visited = HashSet::new();
     q.push_back((&board[starting_tile.row][starting_tile.col], 0));
     visited.insert(&board[starting_tile.row][starting_tile.col]);
     let mut wrong_pipe = false;
     let mut answer = 0;
-    // dbg!("!!!!!!!!!!", pipe.clone());
     while !q.is_empty() {
       let (tile, distance) = q.pop_front().unwrap();
       let mut num_connected = 0;
@@ -127,7 +126,6 @@ fn main() {
       }
       if num_connected != 2 {
         wrong_pipe = true;
-        // dbg!(tile.clone(), num_connected);
       }
     }
     if !wrong_pipe {

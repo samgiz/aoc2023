@@ -12,7 +12,7 @@ fn main() {
   let mut line = String::new();
   io::stdin().read_line(&mut line).ok();
   let steps = line.trim().as_bytes().split(|&x|x == b',');
-  let hashes = steps.map(|x| hash(x));
+  let hashes = steps.map(hash);
   let hash_sum: u64 = hashes.sum();
   println!("{}", hash_sum);
 }

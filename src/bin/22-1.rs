@@ -41,15 +41,6 @@ fn main() {
     bricks[i].z1 -= shift_amount;
     bricks[i].z2 -= shift_amount;
   }
-  // dbg!(bricks.clone());
-  // for i in 0..bricks.len() {
-  //   for j in 0..i {
-  //     if bricks[i].overlaps_with(&bricks[j]) {
-  //       dbg!("overlap");
-  //       dbg!(i, j);
-  //     }
-  //   }
-  // }
   let mut supported_by = vec!(0; bricks.len());
   for i in 0..bricks.len() {
     for j in 0..i {
@@ -66,7 +57,7 @@ fn main() {
           return false;
         }
       }
-      return true;
+      true
     })(); 
     num_removable += if can_be_removed {1} else {0};
   }

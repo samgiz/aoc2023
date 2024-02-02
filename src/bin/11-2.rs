@@ -3,8 +3,8 @@ use std::{io, collections::BTreeSet};
 fn rotate(matrix: Vec<Vec<u8>>) -> Vec<Vec<u8>> {
   let mut new_matrix = vec![vec![0; matrix.len()]; matrix[0].len()];
   for i in 0..matrix.len() {
-    for j in 0..matrix[0].len() {
-      new_matrix[j][matrix.len()-1-i] = matrix[i][j]
+    for (j, &value) in matrix[i].iter().enumerate() {
+      new_matrix[j][matrix.len()-1-i] = value;
       // 2x2 matrix
       // 0,0 => 0,1
     }
@@ -12,7 +12,7 @@ fn rotate(matrix: Vec<Vec<u8>>) -> Vec<Vec<u8>> {
   new_matrix
 }
 
-fn get_empty_rows(matrix: &Vec<Vec<u8>>) -> BTreeSet<usize> {
+fn get_empty_rows(matrix: &[Vec<u8>]) -> BTreeSet<usize> {
   let mut empty_rows = BTreeSet::new();
   matrix.iter().enumerate().for_each(|(i, x)| {
     if x.iter().all(|&x| x == b'.') {
@@ -27,7 +27,6 @@ fn main() {
   let empty_rows = get_empty_rows(&board);
   let board = rotate(board);
   let empty_columns = get_empty_rows(&board);
-  dbg!(empty_rows.clone(), empty_columns.clone());
   let board = rotate(rotate(rotate(board)));
   let mut galaxy_locations = Vec::new();
   for i in 0..board.len() {
@@ -42,7 +41,6 @@ fn main() {
     for b in galaxy_locations.iter() {
       let rows_in_between = empty_rows.range((std::cmp::min(a.0, b.0) as usize)..(std::cmp::max(a.0, b.0) as usize)).count();
       let columns_in_between = empty_columns.range((std::cmp::min(a.1, b.1) as usize)..(std::cmp::max(a.1, b.1) as usize)).count();
-      // dbg!(rows_in_between, columns_in_between);
       answer += (a.0 - b.0).abs() + (a.1 - b.1).abs() + (rows_in_between as i64 + columns_in_between as i64) * 999_999;
     }
   }

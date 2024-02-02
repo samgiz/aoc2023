@@ -3,37 +3,31 @@ use std::{io, collections::HashMap};
 fn find_first(string_to_digit: &HashMap<&str, u64>, text: &str) -> u64 {
   let mut return_value = 0;
   let mut earliest = text.len() + 1;
-  for (key, value) in string_to_digit.into_iter() {
+  for (key, value) in string_to_digit.iter() {
     let index = text.find(key);
-    match index {
-      Some(index) => {
-        if earliest > index {
-          earliest = index;
-          return_value = *value;
-        }
+    if let Some(index) = index {
+      if earliest > index {
+        earliest = index;
+        return_value = *value;
       }
-      _ => ()
     }
   }
-  return return_value;
+  return_value
 }
 
 fn find_last(string_to_digit: &HashMap<&str, u64>, text: &str) -> u64 {
   let mut return_value = 0;
   let mut latest = text.len() + 1;
-  for (key, value) in string_to_digit.into_iter() {
+  for (key, value) in string_to_digit.iter() {
     let index = text.rfind(key);
-    match index {
-      Some(index) => {
-        if latest < index || latest == text.len() + 1 {
-          latest = index;
-          return_value = *value;
-        }
+    if let Some(index) = index {
+      if latest < index || latest == text.len() + 1 {
+        latest = index;
+        return_value = *value;
       }
-      _ => ()
     }
   }
-  return return_value;
+  return_value
 }
 
 fn main() {
