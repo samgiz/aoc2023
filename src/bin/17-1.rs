@@ -1,13 +1,13 @@
 use std::cmp::Ordering;
-use std::io;
 use std::collections::{BinaryHeap, HashSet};
+use std::io;
 
 #[derive(PartialEq, Eq, Hash, Copy, Clone, Ord, PartialOrd)]
 enum Direction {
   Up,
   Down,
   Left,
-  Right
+  Right,
 }
 use Direction::*;
 
@@ -17,7 +17,7 @@ impl Direction {
       Up => Left,
       Left => Down,
       Down => Right,
-      Right => Up
+      Right => Up,
     }
   }
   fn right(&self) -> Direction {
@@ -25,11 +25,10 @@ impl Direction {
       Up => Right,
       Left => Up,
       Down => Left,
-      Right => Down
+      Right => Down,
     }
   }
 }
-
 
 #[derive(PartialEq, Eq, Hash, Copy, Clone)]
 struct QueueState {
@@ -37,7 +36,7 @@ struct QueueState {
   row: usize,
   col: usize,
   num_forward: u64,
-  dir: Direction
+  dir: Direction,
 }
 
 impl QueueState {
@@ -46,21 +45,26 @@ impl QueueState {
       Up => (self.row as i64 - 1, self.col as i64),
       Down => (self.row as i64 + 1, self.col as i64),
       Right => (self.row as i64, self.col as i64 + 1),
-      Left => (self.row as i64, self.col as i64 - 1)
+      Left => (self.row as i64, self.col as i64 - 1),
     };
-    if new_row < 0 ||
-       new_col < 0 ||
-       new_row >= board.len() as i64 ||
-       new_col >= board[0].len() as i64 || 
-       (dir == self.dir && self.num_forward == 3) {
+    if new_row < 0
+      || new_col < 0
+      || new_row >= board.len() as i64
+      || new_col >= board[0].len() as i64
+      || (dir == self.dir && self.num_forward == 3)
+    {
       None
     } else {
       Some(QueueState {
         row: new_row as usize,
         col: new_col as usize,
         cost: self.cost + board[new_row as usize][new_col as usize],
-        num_forward: if dir == self.dir {self.num_forward + 1} else {1},
-        dir
+        num_forward: if dir == self.dir {
+          self.num_forward + 1
+        } else {
+          1
+        },
+        dir,
       })
     }
   }
@@ -68,7 +72,9 @@ impl QueueState {
 
 impl Ord for QueueState {
   fn cmp(&self, other: &Self) -> Ordering {
-    other.cost.cmp(&self.cost)
+    other
+      .cost
+      .cmp(&self.cost)
       .then_with(|| self.row.cmp(&other.row))
       .then_with(|| self.col.cmp(&other.col))
       .then_with(|| self.num_forward.cmp(&other.num_forward))
@@ -87,29 +93,39 @@ struct VisitedState {
   row: usize,
   col: usize,
   num_forward: u64,
-  dir: Direction
+  dir: Direction,
 }
 
 impl From<&QueueState> for VisitedState {
-    fn from(state: &QueueState) -> Self {
-      VisitedState {
-        row: state.row, 
-        col: state.col,
-        num_forward: state.num_forward,
-        dir: state.dir
-      }
+  fn from(state: &QueueState) -> Self {
+    VisitedState {
+      row: state.row,
+      col: state.col,
+      num_forward: state.num_forward,
+      dir: state.dir,
     }
+  }
 }
 
 fn main() {
-  let board: Vec<_> = io::stdin().lines().map(|line|line.unwrap().as_bytes().iter().map(|&x|(x-b'0') as u64).collect::<Vec<_>>()).collect();
+  let board: Vec<_> = io::stdin()
+    .lines()
+    .map(|line| {
+      line
+        .unwrap()
+        .as_bytes()
+        .iter()
+        .map(|&x| (x - b'0') as u64)
+        .collect::<Vec<_>>()
+    })
+    .collect();
   let mut q = BinaryHeap::<QueueState>::new();
-  q.push(QueueState{
+  q.push(QueueState {
     cost: 0,
     row: 0,
     col: 0,
     num_forward: 0,
-    dir: Down
+    dir: Down,
   });
   let mut visited = HashSet::<VisitedState>::new();
   let mut answer: Option<u64> = None;
@@ -120,10 +136,10 @@ fn main() {
       continue;
     }
     visited.insert(visited_state);
-    if top.row == board.len() - 1 && top.col == board[0].len()-1 {
+    if top.row == board.len() - 1 && top.col == board[0].len() - 1 {
       answer = match answer {
         None => Some(top.cost),
-        Some(answer) => Some(std::cmp::min(answer, top.cost))
+        Some(answer) => Some(std::cmp::min(answer, top.cost)),
       };
     }
     // Try forward

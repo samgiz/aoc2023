@@ -13,7 +13,11 @@ impl Cubes {
     self.blue = std::cmp::max(self.blue, other.blue);
   }
   fn new() -> Cubes {
-    Cubes {red:0, green:0, blue:0}
+    Cubes {
+      red: 0,
+      green: 0,
+      blue: 0,
+    }
   }
 }
 
@@ -39,7 +43,7 @@ fn main() {
           "blue" => cubes.blue = value,
           "red" => cubes.red = value,
           "green" => cubes.green = value,
-          _ => panic!("Neither blue, red or green")
+          _ => panic!("Neither blue, red or green"),
         }
       });
       main_cubes.must_contain(&cubes);

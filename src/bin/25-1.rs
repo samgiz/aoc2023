@@ -1,6 +1,12 @@
-use std::{io, collections::HashMap};
+use std::{collections::HashMap, io};
 
-fn find_path(residual_graph: &Vec<Vec<(usize, usize)>>, current: usize, sink: usize, visited: &mut Vec<bool>, path: &mut Vec<usize>) -> Option<Vec<usize>> {
+fn find_path(
+  residual_graph: &Vec<Vec<(usize, usize)>>,
+  current: usize,
+  sink: usize,
+  visited: &mut Vec<bool>,
+  path: &mut Vec<usize>,
+) -> Option<Vec<usize>> {
   visited[current] = true;
   if current == sink {
     return Some(path.clone());
@@ -11,7 +17,7 @@ fn find_path(residual_graph: &Vec<Vec<(usize, usize)>>, current: usize, sink: us
       path.push(neighbor);
       match find_path(residual_graph, neighbor, sink, visited, path) {
         None => (),
-        anything_else => return anything_else
+        anything_else => return anything_else,
       }
       path.pop();
     }
@@ -25,7 +31,11 @@ fn find_min_cut(residual_graph: &Vec<Vec<(usize, usize)>>, source: usize) -> u64
   mark_reachable_nodes(residual_graph, source, &mut visited)
 }
 
-fn mark_reachable_nodes(residual_graph: &Vec<Vec<(usize, usize)>>, current: usize, visited: &mut Vec<bool>) -> u64 {
+fn mark_reachable_nodes(
+  residual_graph: &Vec<Vec<(usize, usize)>>,
+  current: usize,
+  visited: &mut Vec<bool>,
+) -> u64 {
   visited[current] = true;
   let mut answer = 1;
   for &(neighbor, capacity) in residual_graph[current].iter() {
@@ -54,7 +64,11 @@ fn update_residual_graph(residual_graph: &mut [Vec<(usize, usize)>], path: &[usi
 
 fn find_cut(source: usize, sink: usize, edges: &Vec<Vec<usize>>) -> Option<u64> {
   // Initialize residual graph
-  let mut residual_graph = edges.clone().iter().map(|x|x.iter().map(|&x|(x, 1)).collect()).collect();
+  let mut residual_graph = edges
+    .clone()
+    .iter()
+    .map(|x| x.iter().map(|&x| (x, 1)).collect())
+    .collect();
 
   // Initialize flow and augmenting path
   let mut max_flow = 0;
@@ -64,7 +78,7 @@ fn find_cut(source: usize, sink: usize, edges: &Vec<Vec<usize>>) -> Option<u64> 
 
   while let Some(p) = path {
     if max_flow >= 3 {
-      return None
+      return None;
     }
 
     // Update residual capacities and reverse edges

@@ -5,7 +5,7 @@ enum Direction {
   Up,
   Down,
   Left,
-  Right
+  Right,
 }
 use Direction::*;
 
@@ -21,14 +21,18 @@ impl Location {
       Up => (self.row as i64 - 1, self.col as i64),
       Down => (self.row as i64 + 1, self.col as i64),
       Right => (self.row as i64, self.col as i64 + 1),
-      Left => (self.row as i64, self.col as i64 - 1)
+      Left => (self.row as i64, self.col as i64 - 1),
     };
-    if new_row < 0 || new_col < 0 || new_row >= board.len() as i64 || new_col >= board[0].len() as i64 {
+    if new_row < 0
+      || new_col < 0
+      || new_row >= board.len() as i64
+      || new_col >= board[0].len() as i64
+    {
       None
     } else {
       Some(Location {
         row: new_row as usize,
-        col: new_col as usize
+        col: new_col as usize,
       })
     }
   }
@@ -41,20 +45,20 @@ struct Plan {
 }
 
 impl From<u8> for Direction {
-    fn from(value: u8) -> Self {
-      match value {
-        b'D' => Down,
-        b'R' => Right,
-        b'L' => Left,
-        b'U' => Up,
-        _ => panic!("Invalid character passed to direction")
-      }
+  fn from(value: u8) -> Self {
+    match value {
+      b'D' => Down,
+      b'R' => Right,
+      b'L' => Left,
+      b'U' => Up,
+      _ => panic!("Invalid character passed to direction"),
     }
+  }
 }
 
 fn dfs(board: &mut Vec<Vec<u8>>, row: usize, col: usize) -> Option<u64> {
   let mut to_visit = Vec::new();
-  to_visit.push(Location{row, col});
+  to_visit.push(Location { row, col });
   board[row][col] = b'v';
   let mut amount = 0;
   let mut return_none = false;
@@ -84,13 +88,16 @@ fn dfs(board: &mut Vec<Vec<u8>>, row: usize, col: usize) -> Option<u64> {
 
 fn main() {
   let lines = io::stdin().lines();
-  let plans: Vec<_> = lines.map(|line| {
-    let line = line.unwrap();
-    let [dir, amount, _color]: [&str; 3] = line.split(' ').collect::<Vec<&str>>().try_into().unwrap();
-    let dir = Direction::from(*dir.as_bytes().first().unwrap());
-    let amount = amount.parse::<i64>().unwrap();
-    Plan {dir, amount}
-  }).collect();
+  let plans: Vec<_> = lines
+    .map(|line| {
+      let line = line.unwrap();
+      let [dir, amount, _color]: [&str; 3] =
+        line.split(' ').collect::<Vec<&str>>().try_into().unwrap();
+      let dir = Direction::from(*dir.as_bytes().first().unwrap());
+      let amount = amount.parse::<i64>().unwrap();
+      Plan { dir, amount }
+    })
+    .collect();
   let mut row = 0;
   let mut col = 0;
   let mut row_max = 0;
@@ -102,7 +109,7 @@ fn main() {
       Down => row += plan.amount,
       Up => row -= plan.amount,
       Right => col += plan.amount,
-      Left => col -= plan.amount
+      Left => col -= plan.amount,
     }
     use std::cmp::{max, min};
     row_max = max(row, row_max);
@@ -114,9 +121,9 @@ fn main() {
   let col_size = (col_max - col_min + 1) as usize;
   let mut current_location = Location {
     row: -row_min as usize,
-    col: -col_min as usize
+    col: -col_min as usize,
   };
-  let mut board = vec!(vec!(b'.'; col_size); row_size);
+  let mut board = vec![vec!(b'.'; col_size); row_size];
   board[current_location.row][current_location.col] = b'#';
   let mut already_dug_out = 1;
   for plan in plans {

@@ -1,4 +1,4 @@
-use std::{io, collections::HashMap};
+use std::{collections::HashMap, io};
 
 fn find_first(string_to_digit: &HashMap<&str, u64>, text: &str) -> u64 {
   let mut return_value = 0;

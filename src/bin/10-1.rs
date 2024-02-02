@@ -1,4 +1,7 @@
-use std::{io, collections::{VecDeque, HashSet}};
+use std::{
+  collections::{HashSet, VecDeque},
+  io,
+};
 #[derive(PartialEq, Eq, Hash, Clone, Debug, Copy)]
 enum Pipe {
   Animal,
@@ -8,7 +11,7 @@ enum Pipe {
   UpRight,
   UpLeft,
   DownLeft,
-  DownRight
+  DownRight,
 }
 use Pipe::*;
 impl Pipe {
@@ -37,7 +40,7 @@ impl From<&u8> for Pipe {
       b'F' => DownRight,
       b'.' => Empty,
       b'S' => Animal,
-      _ => panic!("Pipe::from received an invalid byte {c}")
+      _ => panic!("Pipe::from received an invalid byte {c}"),
     }
   }
 }
@@ -46,58 +49,70 @@ impl From<&u8> for Pipe {
 struct Tile {
   row: usize,
   col: usize,
-  pipe: Pipe
+  pipe: Pipe,
 }
 
-fn valid_indices(i: i64, j: i64, n: usize, m: usize)  -> bool {
+fn valid_indices(i: i64, j: i64, n: usize, m: usize) -> bool {
   i >= 0 && j >= 0 && i < n as i64 && j < m as i64
 }
 
 impl Tile {
   fn connects_to(&self, other: &Tile) -> bool {
-    if self.row == other.row && self.col + 1 == other.col
+    if self.row == other.row
+      && self.col + 1 == other.col
       && self.pipe.connects_right()
-      && other.pipe.connects_left() {
-        return true;
+      && other.pipe.connects_left()
+    {
+      return true;
     }
-    if self.row == other.row && self.col == other.col + 1
+    if self.row == other.row
+      && self.col == other.col + 1
       && self.pipe.connects_left()
-      && other.pipe.connects_right() {
-        return true;
+      && other.pipe.connects_right()
+    {
+      return true;
     }
-    if self.col == other.col && self.row + 1 == other.row
+    if self.col == other.col
+      && self.row + 1 == other.row
       && self.pipe.connects_down()
-      && other.pipe.connects_up() {
-        return true;
+      && other.pipe.connects_up()
+    {
+      return true;
     }
-    if self.col == other.col && self.row == other.row + 1
+    if self.col == other.col
+      && self.row == other.row + 1
       && self.pipe.connects_up()
-      && other.pipe.connects_down() {
-        return true;
+      && other.pipe.connects_down()
+    {
+      return true;
     }
     false
   }
-} 
+}
 
 fn main() {
-  let mut board = io::stdin().lines().enumerate().map(|(line_number, line)| {
-    let line = line.unwrap();
-    let pipes = line
-      .as_bytes()
-      .iter()
-      .map(Pipe::from)
-      .enumerate()
-      .map(|(i, pipe)| Tile {
-        row: line_number,
-        col: i,
-        pipe,
-      })
-      .collect::<Vec<_>>();
-    pipes
-  }).collect::<Vec<_>>();
+  let mut board = io::stdin()
+    .lines()
+    .enumerate()
+    .map(|(line_number, line)| {
+      let line = line.unwrap();
+      let pipes = line
+        .as_bytes()
+        .iter()
+        .map(Pipe::from)
+        .enumerate()
+        .map(|(i, pipe)| Tile {
+          row: line_number,
+          col: i,
+          pipe,
+        })
+        .collect::<Vec<_>>();
+      pipes
+    })
+    .collect::<Vec<_>>();
 
-  let starting_tile = (*board.iter().flatten().find(|t|t.pipe == Animal).unwrap()).clone();
-  
+  let starting_tile = (*board.iter().flatten().find(|t| t.pipe == Animal).unwrap()).clone();
+
   for pipe in [UpRight, UpDown, UpLeft, DownLeft, DownRight, LeftRight] {
     board[starting_tile.row][starting_tile.col].pipe = pipe;
     let mut q = VecDeque::new();
@@ -109,7 +124,7 @@ fn main() {
     while !q.is_empty() {
       let (tile, distance) = q.pop_front().unwrap();
       let mut num_connected = 0;
-        for (drow, dcol) in [(1, 0), (-1, 0), (0, 1), (0, -1)] {
+      for (drow, dcol) in [(1, 0), (-1, 0), (0, 1), (0, -1)] {
         let row = drow + (tile.row as i64);
         let col = dcol + (tile.col as i64);
         if valid_indices(row, col, board.len(), board[0].len()) {
@@ -130,6 +145,6 @@ fn main() {
     }
     if !wrong_pipe {
       println!("{}", answer);
-    } 
+    }
   }
 }

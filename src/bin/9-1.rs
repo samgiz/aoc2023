@@ -9,7 +9,11 @@ fn main() {
     let mut current: Vec<_> = line.split(' ').map(|x| x.parse::<i64>().unwrap()).collect();
     while !current.is_empty() && !current.iter().all(|&x| x == 0) {
       sum += current.last().unwrap();
-      current = current[..current.len()-1].iter().zip(current[1..].iter()).map(|(l, r)| r - l).collect();
+      current = current[..current.len() - 1]
+        .iter()
+        .zip(current[1..].iter())
+        .map(|(l, r)| r - l)
+        .collect();
     }
     answer += sum;
   }

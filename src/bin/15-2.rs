@@ -3,7 +3,7 @@ use std::io;
 #[derive(Debug, Clone)]
 struct Lens {
   label: Vec<u8>,
-  strength: u64
+  strength: u64,
 }
 
 fn hash(x: &[u8]) -> usize {
@@ -17,22 +17,25 @@ fn hash(x: &[u8]) -> usize {
 fn main() {
   let mut line = String::new();
   io::stdin().read_line(&mut line).ok();
-  let steps = line.trim().as_bytes().split(|&x|x == b',');
+  let steps = line.trim().as_bytes().split(|&x| x == b',');
   // https://stackoverflow.com/a/77104684/8791653
   let mut boxes: [Vec<Lens>; 256] = vec![Vec::new(); 256].try_into().expect("static");
   for step in steps {
     if step.last().unwrap() == &b'-' {
-      let label = &step[..step.len()-1];
+      let label = &step[..step.len() - 1];
       let bucket_id = hash(label);
-      boxes[bucket_id].retain(|x|x.label != label);
+      boxes[bucket_id].retain(|x| x.label != label);
     } else {
-      let strength = (step[step.len()-1] - b'0') as u64;
-      let label = &step[..step.len()-2];
+      let strength = (step[step.len() - 1] - b'0') as u64;
+      let label = &step[..step.len() - 2];
       let bucket_id = hash(label);
-      let lens = boxes[bucket_id].iter_mut().find(|x|x.label == label);
+      let lens = boxes[bucket_id].iter_mut().find(|x| x.label == label);
       match lens {
         None => {
-          boxes[bucket_id].push(Lens{label: label.to_vec(), strength});
+          boxes[bucket_id].push(Lens {
+            label: label.to_vec(),
+            strength,
+          });
         }
         Some(lens) => {
           lens.strength = strength;

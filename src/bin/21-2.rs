@@ -1,4 +1,7 @@
-use std::{io, collections::{HashMap, VecDeque}};
+use std::{
+  collections::{HashMap, VecDeque},
+  io,
+};
 
 // returned_vec[i] denotes how many positions are reachable in i steps if we start at starting_position
 // returned_vec[i] = returned_vec[returned_vec.len() - 1] for i >= returned_vec.len()
@@ -26,15 +29,22 @@ fn bfs_from(starting_position: (usize, usize), map: &Vec<Vec<u8>>) -> Vec<u64> {
   }
   // find max number of steps
   let max_num_steps = *visited.values().max().unwrap();
-  let mut answers = vec!(0_u64; (max_num_steps+1) as usize);
-  visited.iter().for_each(|(_, &steps)| answers[steps as usize] += 1);
+  let mut answers = vec![0_u64; (max_num_steps + 1) as usize];
+  visited
+    .iter()
+    .for_each(|(_, &steps)| answers[steps as usize] += 1);
   for i in 2..answers.len() {
-    answers[i] += answers[i-2];
+    answers[i] += answers[i - 2];
   }
   answers
 }
 
-fn answer_from_corner(mut sideways_amount: i64, num_reachable: &Vec<u64>, map: &Vec<Vec<u8>>, total_reachable_in_block: u64) -> u64 {
+fn answer_from_corner(
+  mut sideways_amount: i64,
+  num_reachable: &Vec<u64>,
+  map: &Vec<Vec<u8>>,
+  total_reachable_in_block: u64,
+) -> u64 {
   let mut answer = 0;
   while sideways_amount >= 0 {
     let mut amount = sideways_amount as u64 % map.len() as u64;
@@ -50,7 +60,12 @@ fn answer_from_corner(mut sideways_amount: i64, num_reachable: &Vec<u64>, map: &
   answer
 }
 
-fn answer_vertically(amount: u64, num_reachable: &Vec<u64>, map: &Vec<Vec<u8>>, total_reachable_in_block: u64) -> u64 {
+fn answer_vertically(
+  amount: u64,
+  num_reachable: &Vec<u64>,
+  map: &Vec<Vec<u8>>,
+  total_reachable_in_block: u64,
+) -> u64 {
   let mut answer = 0;
   // move as far as we can down
   let mut block = 1 + amount / map.len() as u64;
@@ -64,7 +79,12 @@ fn answer_vertically(amount: u64, num_reachable: &Vec<u64>, map: &Vec<Vec<u8>>, 
   answer
 }
 
-fn answer_horizontally(amount: u64, num_reachable: &[u64], map: &[Vec<u8>], total_reachable_in_block: u64) -> u64 {
+fn answer_horizontally(
+  amount: u64,
+  num_reachable: &[u64],
+  map: &[Vec<u8>],
+  total_reachable_in_block: u64,
+) -> u64 {
   let mut answer = 0;
   // move as far as we can down
   let mut block = 1 + amount / map[0].len() as u64;
@@ -79,18 +99,18 @@ fn answer_horizontally(amount: u64, num_reachable: &[u64], map: &[Vec<u8>], tota
 }
 
 fn expand(map: Vec<Vec<u8>>) -> Vec<Vec<u8>> {
-  let mut new_map = vec!(vec!(b'.'; map[0].len() * 2); map.len() * 2);
+  let mut new_map = vec![vec!(b'.'; map[0].len() * 2); map.len() * 2];
   for i in 0..map.len() {
     for j in 0..map[0].len() {
       new_map[i][j] = map[i][j];
       if map[i][j] == b'S' {
-        new_map[i][j+map[0].len()] = b'.';
-        new_map[i+map.len()][j+map[0].len()] = b'.';
-        new_map[i+map.len()][j] = b'.';
+        new_map[i][j + map[0].len()] = b'.';
+        new_map[i + map.len()][j + map[0].len()] = b'.';
+        new_map[i + map.len()][j] = b'.';
       } else {
-        new_map[i][j+map[0].len()] = map[i][j];
-        new_map[i+map.len()][j+map[0].len()] = map[i][j];
-        new_map[i+map.len()][j] = map[i][j];
+        new_map[i][j + map[0].len()] = map[i][j];
+        new_map[i + map.len()][j + map[0].len()] = map[i][j];
+        new_map[i + map.len()][j] = map[i][j];
       }
     }
   }
@@ -106,7 +126,10 @@ fn total_reachable(even: u64, odd: u64, i: usize, j: usize) -> u64 {
 }
 
 fn main() {
-  let map = io::stdin().lines().map(|line| line.unwrap().as_bytes().to_vec()).collect::<Vec<_>>();
+  let map = io::stdin()
+    .lines()
+    .map(|line| line.unwrap().as_bytes().to_vec())
+    .collect::<Vec<_>>();
   let map = expand(map);
   let starting_position = (|| {
     for i in 0..map.len() {
@@ -142,44 +165,95 @@ fn main() {
   } else {
     from_top_left[from_top_left.len() - 2]
   };
-  let mut answer: u64 = total_reachable(even_reachable, odd_reachable, starting_position.0, starting_position.1);
+  let mut answer: u64 = total_reachable(
+    even_reachable,
+    odd_reachable,
+    starting_position.0,
+    starting_position.1,
+  );
   // down
   // S to top middle of the next block
   let amount = total_steps - (map.len() - starting_position.0) as u64;
-  let num_reachable = total_reachable(even_reachable, odd_reachable, map.len() - starting_position.0, starting_position.1);
+  let num_reachable = total_reachable(
+    even_reachable,
+    odd_reachable,
+    map.len() - starting_position.0,
+    starting_position.1,
+  );
   answer += answer_vertically(amount, &from_top_center, &map, num_reachable);
   // up
   // S to bottom middle of the next block
   let amount = total_steps - (starting_position.0 + 1) as u64;
-  let num_reachable = total_reachable(even_reachable, odd_reachable, map.len() - 1 + starting_position.0 + 1, starting_position.1);
+  let num_reachable = total_reachable(
+    even_reachable,
+    odd_reachable,
+    map.len() - 1 + starting_position.0 + 1,
+    starting_position.1,
+  );
   answer += answer_vertically(amount, &from_bottom_center, &map, num_reachable);
   // left
   // S to middle right of the next block
   let amount = total_steps - (starting_position.1 + 1) as u64;
-  let num_reachable = total_reachable(even_reachable, odd_reachable, starting_position.0 + (starting_position.1 + 1), map[0].len() - 1);
+  let num_reachable = total_reachable(
+    even_reachable,
+    odd_reachable,
+    starting_position.0 + (starting_position.1 + 1),
+    map[0].len() - 1,
+  );
   answer += answer_horizontally(amount, &from_center_right, &map, num_reachable);
   // right
   // S to middle left of the next block
   let amount = total_steps - (map[0].len() - starting_position.1) as u64;
-  let num_reachable = total_reachable(even_reachable, odd_reachable, starting_position.0 + (map[0].len() - starting_position.1), 0);
+  let num_reachable = total_reachable(
+    even_reachable,
+    odd_reachable,
+    starting_position.0 + (map[0].len() - starting_position.1),
+    0,
+  );
   answer += answer_horizontally(amount, &from_center_left, &map, num_reachable);
 
-  
   // down left
-  let left_amount = total_steps as i64 - (map.len() - starting_position.0) as i64 - (starting_position.1 + 1) as i64;
-  let num_reachable = total_reachable(even_reachable, odd_reachable, (map.len() - starting_position.0) + (starting_position.1 + 1), map[0].len() - 1);
+  let left_amount = total_steps as i64
+    - (map.len() - starting_position.0) as i64
+    - (starting_position.1 + 1) as i64;
+  let num_reachable = total_reachable(
+    even_reachable,
+    odd_reachable,
+    (map.len() - starting_position.0) + (starting_position.1 + 1),
+    map[0].len() - 1,
+  );
   answer += answer_from_corner(left_amount, &from_top_right, &map, num_reachable);
   // down right
-  let right_amount = total_steps as i64 - (map.len() - starting_position.0) as i64 - (map[0].len() - starting_position.1) as i64;
-  let num_reachable = total_reachable(even_reachable, odd_reachable, (map.len() - starting_position.0) + (map[0].len() - starting_position.1), 0);
+  let right_amount = total_steps as i64
+    - (map.len() - starting_position.0) as i64
+    - (map[0].len() - starting_position.1) as i64;
+  let num_reachable = total_reachable(
+    even_reachable,
+    odd_reachable,
+    (map.len() - starting_position.0) + (map[0].len() - starting_position.1),
+    0,
+  );
   answer += answer_from_corner(right_amount, &from_top_left, &map, num_reachable);
   // up left
-  let left_amount = total_steps as i64 - (starting_position.0 + 1) as i64 - (starting_position.1 + 1) as i64;
-  let num_reachable = total_reachable(even_reachable, odd_reachable, map.len() - 1 + (starting_position.0 + 1) + (starting_position.1 + 1), map[0].len() - 1);
+  let left_amount =
+    total_steps as i64 - (starting_position.0 + 1) as i64 - (starting_position.1 + 1) as i64;
+  let num_reachable = total_reachable(
+    even_reachable,
+    odd_reachable,
+    map.len() - 1 + (starting_position.0 + 1) + (starting_position.1 + 1),
+    map[0].len() - 1,
+  );
   answer += answer_from_corner(left_amount, &from_bottom_right, &map, num_reachable);
   // up right
-  let right_amount = total_steps as i64 - (starting_position.0 + 1) as i64 - (map[0].len() - starting_position.1) as i64;
-  let num_reachable = total_reachable(even_reachable, odd_reachable, map.len() - 1 + (starting_position.0 + 1) + (map[0].len() - starting_position.1), 0);
+  let right_amount = total_steps as i64
+    - (starting_position.0 + 1) as i64
+    - (map[0].len() - starting_position.1) as i64;
+  let num_reachable = total_reachable(
+    even_reachable,
+    odd_reachable,
+    map.len() - 1 + (starting_position.0 + 1) + (map[0].len() - starting_position.1),
+    0,
+  );
   answer += answer_from_corner(right_amount, &from_bottom_left, &map, num_reachable);
   println!("{answer}");
 }

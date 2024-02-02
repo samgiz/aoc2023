@@ -1,9 +1,12 @@
-use std::{io, collections::{HashMap, VecDeque}};
+use std::{
+  collections::{HashMap, VecDeque},
+  io,
+};
 
 #[derive(PartialEq, Copy, Clone, Debug)]
 enum Pulse {
   High,
-  Low
+  Low,
 }
 
 use Pulse::*;
@@ -11,7 +14,7 @@ use Pulse::*;
 #[derive(Debug, Clone)]
 struct FlipFlop {
   labels: Vec<String>,
-  state: bool // on / off
+  state: bool, // on / off
 }
 
 #[derive(Debug, Clone)]
@@ -19,22 +22,22 @@ struct Conjunction {
   labels: Vec<String>,
   state: HashMap<String, Pulse>,
   num_active: u64,
-  num_inputs: u64
+  num_inputs: u64,
 }
 
 #[derive(Debug, Clone)]
 struct Broadcast {
-  labels: Vec<String>
+  labels: Vec<String>,
 }
 
 impl Module {
   fn receive(&mut self, signal: Pulse, from: &str) -> Vec<(&String, Pulse)> {
     match self {
-      Module::Broadcast(broadcast) => {
-        broadcast.labels.iter().map(|label| {
-          (label, signal)
-        }).collect()
-      }
+      Module::Broadcast(broadcast) => broadcast
+        .labels
+        .iter()
+        .map(|label| (label, signal))
+        .collect(),
       Module::Conjunction(conjunction) => {
         let last_state = conjunction.state.get(from);
         if signal == High && (last_state.is_none() || last_state.unwrap() == &Low) {
@@ -44,28 +47,31 @@ impl Module {
         }
         conjunction.state.insert(from.to_string(), signal);
         if conjunction.num_active == conjunction.num_inputs {
-          conjunction.labels.iter().map(|label|(label, Low)).collect()
+          conjunction
+            .labels
+            .iter()
+            .map(|label| (label, Low))
+            .collect()
         } else {
-          conjunction.labels.iter().map(|label|(label, High)).collect()
+          conjunction
+            .labels
+            .iter()
+            .map(|label| (label, High))
+            .collect()
         }
       }
       Module::FlipFlop(flip_flop) => {
         if signal == Low {
           flip_flop.state = !flip_flop.state;
           match flip_flop.state {
-            true => {
-              flip_flop.labels.iter().map(|label|(label, High)).collect()
-            },
-            false => {
-              flip_flop.labels.iter().map(|label|(label, Low)).collect()
-            }
+            true => flip_flop.labels.iter().map(|label| (label, High)).collect(),
+            false => flip_flop.labels.iter().map(|label| (label, Low)).collect(),
           }
         } else {
           Vec::new()
         }
       }
     }
-    
   }
 }
 
@@ -73,32 +79,50 @@ impl Module {
 enum Module {
   Broadcast(Broadcast),
   FlipFlop(FlipFlop),
-  Conjunction(Conjunction)
+  Conjunction(Conjunction),
 }
 
 fn parse_module(line: &str, amount_sent_to: &mut HashMap<String, u64>) -> (String, Module) {
   let [left, right]: [&str; 2] = line.split(" -> ").collect::<Vec<_>>().try_into().unwrap();
-  let right = right.split(", ").map(|x|x.to_string()).collect::<Vec<String>>();
-  right.iter().for_each(|label|{
+  let right = right
+    .split(", ")
+    .map(|x| x.to_string())
+    .collect::<Vec<String>>();
+  right.iter().for_each(|label| {
     let previous = amount_sent_to.get(label);
     match previous {
       None => amount_sent_to.insert(label.clone(), 1),
-      Some(amount) => amount_sent_to.insert(label.clone(), amount + 1)
+      Some(amount) => amount_sent_to.insert(label.clone(), amount + 1),
     };
   });
   match left.as_bytes()[0] {
-    b'b' => {
-     (left.to_string(), Module::Broadcast(Broadcast {labels: right}))
-    }
+    b'b' => (
+      left.to_string(),
+      Module::Broadcast(Broadcast { labels: right }),
+    ),
     b'%' => {
       let left = left[1..].to_string();
-      (left, Module::FlipFlop(FlipFlop{labels: right, state: false}))
+      (
+        left,
+        Module::FlipFlop(FlipFlop {
+          labels: right,
+          state: false,
+        }),
+      )
     }
     b'&' => {
       let left = left[1..].to_string();
-      (left, Module::Conjunction(Conjunction{labels: right, state: HashMap::new(), num_active: 0, num_inputs: 0}))
-    },
-    _ => panic!("Bad formatting passed to parse_module {line}")
+      (
+        left,
+        Module::Conjunction(Conjunction {
+          labels: right,
+          state: HashMap::new(),
+          num_active: 0,
+          num_inputs: 0,
+        }),
+      )
+    }
+    _ => panic!("Bad formatting passed to parse_module {line}"),
   }
 }
 

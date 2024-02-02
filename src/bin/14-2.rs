@@ -4,7 +4,7 @@ fn rotate(matrix: &Vec<Vec<u8>>) -> Vec<Vec<u8>> {
   let mut new_matrix = vec![vec![0; matrix.len()]; matrix[0].len()];
   for i in 0..matrix.len() {
     for (j, &value) in matrix[i].iter().enumerate() {
-      new_matrix[j][matrix.len()-1-i] = value
+      new_matrix[j][matrix.len() - 1 - i] = value
       // 2x2 matrix
       // 0,0 => 0,1
     }
@@ -38,7 +38,10 @@ fn cycle(board: &mut Vec<Vec<u8>>) {
 }
 
 fn main() {
-  let mut board: Vec<Vec<u8>> = io::stdin().lines().map(|line| line.unwrap().as_bytes().to_vec()).collect();
+  let mut board: Vec<Vec<u8>> = io::stdin()
+    .lines()
+    .map(|line| line.unwrap().as_bytes().to_vec())
+    .collect();
   for _ in 0..3 {
     board = rotate(&board);
   }
@@ -57,7 +60,7 @@ fn main() {
   }
   // At this point we've cycled num_initial_cycles + cycle_length times
   // Cycle the remaining amount % cycle_length
-  for _ in 0..((1_000_000_000-num_initial_cycles) % cycle_length) {
+  for _ in 0..((1_000_000_000 - num_initial_cycles) % cycle_length) {
     cycle(&mut board);
   }
 

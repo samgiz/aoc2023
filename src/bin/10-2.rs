@@ -1,4 +1,7 @@
-use std::{io, collections::{VecDeque, HashSet}};
+use std::{
+  collections::{HashSet, VecDeque},
+  io,
+};
 
 // --F7..
 // --|L-7
@@ -15,7 +18,7 @@ enum Pipe {
   UpRight,
   UpLeft,
   DownLeft,
-  DownRight
+  DownRight,
 }
 use Pipe::*;
 impl Pipe {
@@ -44,7 +47,7 @@ impl From<&u8> for Pipe {
       b'F' => DownRight,
       b'.' => Empty,
       b'S' => Animal,
-      _ => panic!("Pipe::from received an invalid byte {c}")
+      _ => panic!("Pipe::from received an invalid byte {c}"),
     }
   }
 }
@@ -55,7 +58,7 @@ fn rotate_left(coords: (i64, i64)) -> (i64, i64) {
     (-1, 0) => (0, -1),
     (0, 1) => (-1, 0),
     (0, -1) => (1, 0),
-    _ => panic!("passed wrong coords to rotation funtion: {coords:?}")
+    _ => panic!("passed wrong coords to rotation funtion: {coords:?}"),
   }
 }
 
@@ -65,7 +68,7 @@ fn rotate_right(coords: (i64, i64)) -> (i64, i64) {
     (-1, 0) => (0, 1),
     (0, 1) => (1, 0),
     (0, -1) => (-1, 0),
-    _ => panic!("passed wrong coords to rotation funtion: {coords:?}")
+    _ => panic!("passed wrong coords to rotation funtion: {coords:?}"),
   }
 }
 
@@ -73,58 +76,70 @@ fn rotate_right(coords: (i64, i64)) -> (i64, i64) {
 struct Tile {
   row: usize,
   col: usize,
-  pipe: Pipe
+  pipe: Pipe,
 }
 
-fn valid_indices(i: i64, j: i64, n: usize, m: usize)  -> bool {
+fn valid_indices(i: i64, j: i64, n: usize, m: usize) -> bool {
   i >= 0 && j >= 0 && i < n as i64 && j < m as i64
 }
 
 impl Tile {
   fn connects_to(&self, other: &Tile) -> bool {
-    if self.row == other.row && self.col + 1 == other.col
+    if self.row == other.row
+      && self.col + 1 == other.col
       && self.pipe.connects_right()
-      && other.pipe.connects_left() {
-        return true;
+      && other.pipe.connects_left()
+    {
+      return true;
     }
-    if self.row == other.row && self.col == other.col + 1
+    if self.row == other.row
+      && self.col == other.col + 1
       && self.pipe.connects_left()
-      && other.pipe.connects_right() {
-        return true;
+      && other.pipe.connects_right()
+    {
+      return true;
     }
-    if self.col == other.col && self.row + 1 == other.row
+    if self.col == other.col
+      && self.row + 1 == other.row
       && self.pipe.connects_down()
-      && other.pipe.connects_up() {
-        return true;
+      && other.pipe.connects_up()
+    {
+      return true;
     }
-    if self.col == other.col && self.row == other.row + 1
+    if self.col == other.col
+      && self.row == other.row + 1
       && self.pipe.connects_up()
-      && other.pipe.connects_down() {
-        return true;
+      && other.pipe.connects_down()
+    {
+      return true;
     }
     false
   }
-} 
+}
 
 fn main() {
-  let mut board = io::stdin().lines().enumerate().map(|(line_number, line)| {
-    let line = line.unwrap();
-    let pipes = line
-      .as_bytes()
-      .iter()
-      .map(Pipe::from)
-      .enumerate()
-      .map(|(i, pipe)| Tile {
-        row: line_number,
-        col: i,
-        pipe,
-      })
-      .collect::<Vec<_>>();
-    pipes
-  }).collect::<Vec<_>>();
+  let mut board = io::stdin()
+    .lines()
+    .enumerate()
+    .map(|(line_number, line)| {
+      let line = line.unwrap();
+      let pipes = line
+        .as_bytes()
+        .iter()
+        .map(Pipe::from)
+        .enumerate()
+        .map(|(i, pipe)| Tile {
+          row: line_number,
+          col: i,
+          pipe,
+        })
+        .collect::<Vec<_>>();
+      pipes
+    })
+    .collect::<Vec<_>>();
 
-  let starting_tile = (*board.iter().flatten().find(|t|t.pipe == Animal).unwrap()).clone();
-  
+  let starting_tile = (*board.iter().flatten().find(|t| t.pipe == Animal).unwrap()).clone();
+
   for pipe in [UpRight, UpDown, UpLeft, DownLeft, DownRight, LeftRight] {
     board[starting_tile.row][starting_tile.col].pipe = pipe;
     let mut q = VecDeque::new();
@@ -158,7 +173,7 @@ fn main() {
       let top_left_tile = *visited.iter().min_by_key(|x| (x.row, x.col)).unwrap();
       let mut move_direction = (0, 1);
       let mut search_direction = (1, 0);
-      let mut current = &board[top_left_tile.row][top_left_tile.col+1];
+      let mut current = &board[top_left_tile.row][top_left_tile.col + 1];
       let mut nest = HashSet::new();
       while current != top_left_tile {
         // Search in direction search_direction
@@ -250,6 +265,6 @@ fn main() {
       let usable_nest_amount = nest.len();
       println!("{}", usable_nest_amount);
       break;
-    } 
+    }
   }
 }

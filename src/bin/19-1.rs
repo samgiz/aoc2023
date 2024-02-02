@@ -1,7 +1,7 @@
-use std::{io, collections::HashMap};
+use std::{collections::HashMap, io};
 
 struct Workflow {
-  rules: Vec<Rule>
+  rules: Vec<Rule>,
 }
 
 impl Workflow {
@@ -19,7 +19,7 @@ struct Part {
   x: i64,
   m: i64,
   a: i64,
-  s: i64
+  s: i64,
 }
 
 impl Part {
@@ -31,11 +31,11 @@ impl Part {
           Category::M => self.m,
           Category::A => self.a,
           Category::X => self.x,
-          Category::S => self.s
+          Category::S => self.s,
         };
         match condition.operator {
           LessThan => value < condition.amount,
-          GreaterThan => value > condition.amount
+          GreaterThan => value > condition.amount,
         }
       }
     }
@@ -46,7 +46,7 @@ enum Category {
   X,
   M,
   A,
-  S
+  S,
 }
 
 impl From<u8> for ComparisonOperator {
@@ -54,14 +54,14 @@ impl From<u8> for ComparisonOperator {
     match value {
       b'<' => LessThan,
       b'>' => GreaterThan,
-      _ => panic!("Invalid value passed to ComparisonOperator::from: {value}")
-    } 
+      _ => panic!("Invalid value passed to ComparisonOperator::from: {value}"),
+    }
   }
 }
 
 enum ComparisonOperator {
   LessThan,
-  GreaterThan
+  GreaterThan,
 }
 impl From<u8> for Category {
   fn from(value: u8) -> Self {
@@ -70,8 +70,8 @@ impl From<u8> for Category {
       b'm' => Category::M,
       b'a' => Category::A,
       b's' => Category::S,
-      _ => panic!("Invalid value passed to Category::from: {value}")
-    } 
+      _ => panic!("Invalid value passed to Category::from: {value}"),
+    }
   }
 }
 
@@ -80,12 +80,12 @@ use ComparisonOperator::*;
 struct Condition {
   amount: i64,
   operator: ComparisonOperator,
-  category: Category
+  category: Category,
 }
 
 struct Rule {
   next_label: Vec<u8>,
-  condition: Option<Condition>
+  condition: Option<Condition>,
 }
 
 fn main() {
@@ -96,44 +96,62 @@ fn main() {
     if line.is_empty() {
       break;
     }
-    let [label, rest]: [&[u8]; 2] = line.split(|&x| x == b'{').collect::<Vec<&[u8]>>().try_into().unwrap();
-    let workflow = &rest[..rest.len()-1];
-    let rules = workflow.split(|&x|x == b',');
-    let rules = rules.map(|rule| {
-      if rule.split(|&x| x == b':').count() == 1 {
-        return Rule {
-          next_label: rule.to_vec(),
-          condition: None
+    let [label, rest]: [&[u8]; 2] = line
+      .split(|&x| x == b'{')
+      .collect::<Vec<&[u8]>>()
+      .try_into()
+      .unwrap();
+    let workflow = &rest[..rest.len() - 1];
+    let rules = workflow.split(|&x| x == b',');
+    let rules = rules
+      .map(|rule| {
+        if rule.split(|&x| x == b':').count() == 1 {
+          return Rule {
+            next_label: rule.to_vec(),
+            condition: None,
+          };
         }
-      }
-      let [condition_string, label]: [&[u8]; 2] = rule.split(|&x| x == b':').collect::<Vec<&[u8]>>().try_into().unwrap();
-      let category = Category::from(condition_string[0]);
-      let comparison_operator = ComparisonOperator::from(condition_string[1]);
-      let amount = condition_string[2..].iter().map(|&x|x as char).collect::<String>().parse::<i64>().unwrap();
-      Rule {
-        next_label: label.to_vec(),
-        condition: Some(Condition {
-          amount,
-          category,
-          operator: comparison_operator
-        })
-      }
-    }).collect();
-    workflows.insert(label.to_vec(), Workflow {rules});
+        let [condition_string, label]: [&[u8]; 2] = rule
+          .split(|&x| x == b':')
+          .collect::<Vec<&[u8]>>()
+          .try_into()
+          .unwrap();
+        let category = Category::from(condition_string[0]);
+        let comparison_operator = ComparisonOperator::from(condition_string[1]);
+        let amount = condition_string[2..]
+          .iter()
+          .map(|&x| x as char)
+          .collect::<String>()
+          .parse::<i64>()
+          .unwrap();
+        Rule {
+          next_label: label.to_vec(),
+          condition: Some(Condition {
+            amount,
+            category,
+            operator: comparison_operator,
+          }),
+        }
+      })
+      .collect();
+    workflows.insert(label.to_vec(), Workflow { rules });
   }
   let parts = lines.map(|line| {
     let line = line.unwrap();
-    let line = &line[1..line.len()-1];
-    let categories: Vec<_> = line.split(',').map(|x| x[2..].parse::<i64>().unwrap()).collect();
+    let line = &line[1..line.len() - 1];
+    let categories: Vec<_> = line
+      .split(',')
+      .map(|x| x[2..].parse::<i64>().unwrap())
+      .collect();
     Part {
       x: categories[0],
       m: categories[1],
       a: categories[2],
-      s: categories[3]
+      s: categories[3],
     }
   });
   let scores = parts.map(|part| {
-    let mut current_label = vec!(b'i', b'n');
+    let mut current_label = vec![b'i', b'n'];
     while current_label != b"A" && current_label != b"R" {
       current_label = workflows[&current_label].get_next_label(&part);
     }

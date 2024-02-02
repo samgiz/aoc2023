@@ -1,14 +1,21 @@
-use std::{io, collections::HashSet};
+use std::{collections::HashSet, io};
 
-fn find_edges(i: usize, intersections: &[(usize, usize)], board: &Vec<Vec<u8>>) -> Vec<(usize, u64)> {
+fn find_edges(
+  i: usize,
+  intersections: &[(usize, usize)],
+  board: &Vec<Vec<u8>>,
+) -> Vec<(usize, u64)> {
   let mut answer = Vec::new();
   let (row, col) = intersections[i];
   let mut visited = HashSet::new();
   visited.insert((row, col));
-  let mut to_visit = vec!(((row, col), 0));
+  let mut to_visit = vec![((row, col), 0)];
   while let Some(((row, col), length)) = to_visit.pop() {
     if is_intersection(board, row, col) && (row, col) != intersections[i] {
-      let neighbour = intersections.iter().position(|&(r, c)| r == row && c == col).unwrap();
+      let neighbour = intersections
+        .iter()
+        .position(|&(r, c)| r == row && c == col)
+        .unwrap();
       answer.push((neighbour, length));
       continue;
     }
@@ -50,7 +57,11 @@ fn is_intersection(board: &Vec<Vec<u8>>, row: usize, col: usize) -> bool {
   num_paths > 2
 }
 
-fn find_longest_path(cur: usize, edges: &Vec<Vec<(usize, u64)>>, visited: &mut Vec<bool>) -> Option<u64> {
+fn find_longest_path(
+  cur: usize,
+  edges: &Vec<Vec<(usize, u64)>>,
+  visited: &mut Vec<bool>,
+) -> Option<u64> {
   if cur == visited.len() - 1 {
     return Some(0);
   }
@@ -62,13 +73,11 @@ fn find_longest_path(cur: usize, edges: &Vec<Vec<(usize, u64)>>, visited: &mut V
     visited[next] = true;
     let best_length = find_longest_path(next, edges, visited);
     answer = match best_length {
-      Some(best_length) => {
-        match answer {
-          None => Some(best_length + cost),
-          Some(answer) => Some(std::cmp::max(best_length + cost, answer))
-        }
+      Some(best_length) => match answer {
+        None => Some(best_length + cost),
+        Some(answer) => Some(std::cmp::max(best_length + cost, answer)),
       },
-      None => answer
+      None => answer,
     };
     visited[next] = false;
   }
@@ -76,7 +85,10 @@ fn find_longest_path(cur: usize, edges: &Vec<Vec<(usize, u64)>>, visited: &mut V
 }
 
 fn main() {
-  let mut board = io::stdin().lines().map(|line| line.unwrap().as_bytes().to_vec()).collect::<Vec<_>>();
+  let mut board = io::stdin()
+    .lines()
+    .map(|line| line.unwrap().as_bytes().to_vec())
+    .collect::<Vec<_>>();
   for i in 0..board.len() {
     for j in 0..board[0].len() {
       if board[i][j] != b'.' && board[i][j] != b'#' {
@@ -93,9 +105,11 @@ fn main() {
       }
     }
   }
-  let edges = (0..intersections.len()).map(|i| find_edges(i, &intersections, &board)).collect::<Vec<_>>();
+  let edges = (0..intersections.len())
+    .map(|i| find_edges(i, &intersections, &board))
+    .collect::<Vec<_>>();
   let start = 0;
-  let mut visited = vec!(false; intersections.len());
+  let mut visited = vec![false; intersections.len()];
   visited[start] = true;
   let longest_path = find_longest_path(start, &edges, &mut visited).unwrap();
   println!("{longest_path}");

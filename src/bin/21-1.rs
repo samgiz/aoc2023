@@ -1,7 +1,13 @@
-use std::{io, collections::{HashMap, VecDeque}};
+use std::{
+  collections::{HashMap, VecDeque},
+  io,
+};
 
 fn main() {
-  let map = io::stdin().lines().map(|line| line.unwrap().as_bytes().to_vec()).collect::<Vec<_>>();
+  let map = io::stdin()
+    .lines()
+    .map(|line| line.unwrap().as_bytes().to_vec())
+    .collect::<Vec<_>>();
   let starting_position = (|| {
     for i in 0..map.len() {
       for j in 0..map[0].len() {
@@ -21,7 +27,7 @@ fn main() {
     let (row, col) = to_visit.pop_front().unwrap();
     let amount = visited[&(row, col)];
     if amount == 64 {
-      continue
+      continue;
     }
     for (drow, dcol) in [(0, 1), (0, -1), (1, 0), (-1, 0)] {
       let row = row as i64 + drow;
@@ -37,6 +43,9 @@ fn main() {
     }
   }
 
-  let answer = visited.iter().filter(|&(_, &num_steps)| num_steps % 2 == 0).count();
+  let answer = visited
+    .iter()
+    .filter(|&(_, &num_steps)| num_steps % 2 == 0)
+    .count();
   println!("{answer}");
 }

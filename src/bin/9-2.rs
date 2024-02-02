@@ -16,7 +16,11 @@ fn main() {
     while !current.is_empty() && !current.iter().all(|&x| x == 0) {
       sum += current[0] * flag;
       flag *= -1;
-      current = current[..current.len()-1].iter().zip(current[1..].iter()).map(|(l, r)| r - l).collect();
+      current = current[..current.len() - 1]
+        .iter()
+        .zip(current[1..].iter())
+        .map(|(l, r)| r - l)
+        .collect();
     }
     answer += sum;
   }

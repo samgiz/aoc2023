@@ -4,7 +4,13 @@ fn read_vec_of_nums() -> u64 {
   let mut line = String::new();
   io::stdin().read_line(&mut line).ok();
   let [_, numbers]: [&str; 2] = line.split(": ").collect::<Vec<&str>>().try_into().unwrap();
-  let stringified_num = numbers.trim().split(' ').filter(|num| num != &"").map(String::from).reduce(|acc, s| format!("{acc}{s}")).unwrap_or_default();
+  let stringified_num = numbers
+    .trim()
+    .split(' ')
+    .filter(|num| num != &"")
+    .map(String::from)
+    .reduce(|acc, s| format!("{acc}{s}"))
+    .unwrap_or_default();
   stringified_num.parse::<u64>().unwrap()
 }
 

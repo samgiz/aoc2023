@@ -4,7 +4,7 @@ fn rotate(matrix: Vec<Vec<u8>>) -> Vec<Vec<u8>> {
   let mut new_matrix = vec![vec![0; matrix.len()]; matrix[0].len()];
   for i in 0..matrix.len() {
     for (j, &value) in matrix[i].iter().enumerate() {
-      new_matrix[j][matrix.len()-1-i] = value
+      new_matrix[j][matrix.len() - 1 - i] = value
       // 2x2 matrix
       // 0,0 => 0,1
     }
@@ -13,7 +13,10 @@ fn rotate(matrix: Vec<Vec<u8>>) -> Vec<Vec<u8>> {
 }
 
 fn main() {
-  let board: Vec<Vec<u8>> = io::stdin().lines().map(|line| line.unwrap().as_bytes().to_vec()).collect();
+  let board: Vec<Vec<u8>> = io::stdin()
+    .lines()
+    .map(|line| line.unwrap().as_bytes().to_vec())
+    .collect();
   let board = rotate(rotate(rotate(board)));
   let mut answer: u64 = 0;
   board.iter().for_each(|row| {

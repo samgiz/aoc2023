@@ -1,6 +1,6 @@
-use std::io;
-use std::cmp::Ordering;
 use counter::Counter;
+use std::cmp::Ordering;
+use std::io;
 
 #[derive(PartialOrd, Ord, PartialEq, Eq, Hash, Debug, Copy, Clone)]
 enum Card {
@@ -16,7 +16,7 @@ enum Card {
   Ten,
   Queen,
   King,
-  Ace
+  Ace,
 }
 impl From<u8> for Card {
   fn from(c: u8) -> Card {
@@ -48,7 +48,7 @@ enum Rank {
   Three,
   FullHouse,
   Four,
-  Five
+  Five,
 }
 
 impl From<&[Card; 5]> for Rank {
@@ -58,13 +58,15 @@ impl From<&[Card; 5]> for Rank {
       let tp = c[&Card::Jack];
       c.remove(&Card::Jack);
       tp
-    } else { 0 };
+    } else {
+      0
+    };
     let mut sorted_values = c.values().copied().collect::<Vec<usize>>();
     sorted_values.sort();
     let last = sorted_values.last_mut();
     match last {
       None => {
-        sorted_values = vec!(5);
+        sorted_values = vec![5];
       }
       Some(last) => {
         *last += num_jacks;
@@ -79,7 +81,7 @@ impl From<&[Card; 5]> for Rank {
       [2, 3] => FullHouse,
       [1, 4] => Four,
       [5] => Five,
-      _ => panic!("There's a bug in the matrix: {sorted_values:?}")
+      _ => panic!("There's a bug in the matrix: {sorted_values:?}"),
     }
   }
 }
@@ -121,12 +123,20 @@ fn main() {
   for line in io::stdin().lines() {
     let line = line.unwrap();
     let [cards, bid]: [&str; 2] = line.split(' ').collect::<Vec<&str>>().try_into().unwrap();
-    let cards: [Card; 5] = cards.as_bytes().iter().map(|x| Card::from(*x)).collect::<Vec<_>>()
-    .try_into().expect("wrong size iterator");
+    let cards: [Card; 5] = cards
+      .as_bytes()
+      .iter()
+      .map(|x| Card::from(*x))
+      .collect::<Vec<_>>()
+      .try_into()
+      .expect("wrong size iterator");
     let bid = bid.parse::<u64>().unwrap();
     hands.push(Hand::new(cards, bid));
   }
   hands.sort();
-  let answer = hands.iter().enumerate().fold(0, |cum, (i, hand)| cum + ((i+1) as u64) * hand.bid);
+  let answer = hands
+    .iter()
+    .enumerate()
+    .fold(0, |cum, (i, hand)| cum + ((i + 1) as u64) * hand.bid);
   println!("{}", answer);
 }

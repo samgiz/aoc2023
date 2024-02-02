@@ -1,12 +1,12 @@
-use std::io;
 use std::collections::BTreeSet;
+use std::io;
 
 #[derive(PartialEq, Eq, Hash, Copy, Clone, Ord, PartialOrd, Debug)]
 enum Direction {
   Up,
   Down,
   Left,
-  Right
+  Right,
 }
 use Direction::*;
 
@@ -29,7 +29,7 @@ impl From<u8> for Direction {
       b'1' => Down,
       b'2' => Left,
       b'3' => Up,
-      _ => panic!("Invalid character passed to direction")
+      _ => panic!("Invalid character passed to direction"),
     }
   }
 }
@@ -37,13 +37,13 @@ impl From<u8> for Direction {
 struct Horizontal {
   row: i64,
   left: i64,
-  right: i64
+  right: i64,
 }
 
 #[derive(PartialEq, Debug, Clone, Copy)]
 enum IntervalState {
   Inside,
-  Outside
+  Outside,
 }
 use IntervalState::*;
 
@@ -51,20 +51,19 @@ impl IntervalState {
   fn flip(self) -> IntervalState {
     match self {
       Inside => Outside,
-      Outside => Inside
+      Outside => Inside,
     }
   }
 }
 
 struct Intervals {
   // Sorted list of disjoint intervals
-  v: Vec<Interval>
+  v: Vec<Interval>,
 }
 
 impl Intervals {
-  
   fn init(&mut self, init: Interval) {
-    self.v = vec!(init);
+    self.v = vec![init];
   }
   // The intervals that get passed here will never intersect 2 intervals already in v
   fn flip(&mut self, mut left: i64, mut right: i64) {
@@ -78,7 +77,7 @@ impl Intervals {
             }
           }
           Outside => {
-            if interval.left <= left+1 && right <= interval.right {
+            if interval.left <= left + 1 && right <= interval.right {
               return i;
             }
           }
@@ -93,31 +92,55 @@ impl Intervals {
         right += 1;
         if candidate.left != left {
           // This is outside
-          replace_with.push(Interval {left: candidate.left, right: left, state: candidate.state});
+          replace_with.push(Interval {
+            left: candidate.left,
+            right: left,
+            state: candidate.state,
+          });
         }
         // This is inside
-        replace_with.push(Interval {left, right, state: candidate.state.flip()});
+        replace_with.push(Interval {
+          left,
+          right,
+          state: candidate.state.flip(),
+        });
         if right < candidate.right {
           // This is outside
-          replace_with.push(Interval {left: right, right: candidate.right, state: candidate.state});
+          replace_with.push(Interval {
+            left: right,
+            right: candidate.right,
+            state: candidate.state,
+          });
         }
       }
       Inside => {
         if candidate.left != left {
           left += 1;
         }
-        if candidate.right == right+1 {
+        if candidate.right == right + 1 {
           right += 1;
         }
         if candidate.left != left {
           // this is inside
-          replace_with.push(Interval {left: candidate.left, right: left, state: candidate.state});
+          replace_with.push(Interval {
+            left: candidate.left,
+            right: left,
+            state: candidate.state,
+          });
         }
         // this is outside
-        replace_with.push(Interval {left, right, state: candidate.state.flip()});
+        replace_with.push(Interval {
+          left,
+          right,
+          state: candidate.state.flip(),
+        });
         if candidate.right > right {
           // this is inside
-          replace_with.push(Interval {left: right, right: candidate.right, state: candidate.state});
+          replace_with.push(Interval {
+            left: right,
+            right: candidate.right,
+            state: candidate.state,
+          });
         }
       }
     };
@@ -134,7 +157,7 @@ impl Intervals {
         new_v.push(i);
       }
     }
-    for i in self.v[index+1..].iter() {
+    for i in self.v[index + 1..].iter() {
       if !new_v.is_empty() && i.state == new_v.last().unwrap().state {
         // Combine the two intervals
         new_v.last_mut().unwrap().right = i.right;
@@ -153,7 +176,7 @@ impl Intervals {
           }
         }
         Outside => {
-          if interval.left <= left+1 && right <= interval.right {
+          if interval.left <= left + 1 && right <= interval.right {
             return Outside;
           }
         }
@@ -162,7 +185,17 @@ impl Intervals {
     panic!("Did not find the correct interval state");
   }
   fn get_num_inside(&self) -> u64 {
-    self.v.iter().map(|x| if x.state == Inside {(x.right - x.left) as u64} else {0}).sum()
+    self
+      .v
+      .iter()
+      .map(|x| {
+        if x.state == Inside {
+          (x.right - x.left) as u64
+        } else {
+          0
+        }
+      })
+      .sum()
   }
 }
 
@@ -170,19 +203,22 @@ impl Intervals {
 struct Interval {
   left: i64,
   right: i64,
-  state: IntervalState
+  state: IntervalState,
 }
 
 fn main() {
   let lines = io::stdin().lines();
-  let plans: Vec<_> = lines.map(|line| {
-    let line = line.unwrap();
-    let [_dir, _amount, color]: [&str; 3] = line.split(' ').collect::<Vec<&str>>().try_into().unwrap();
-    let color = color.as_bytes().to_vec();
-    let dir = Direction::from(color[color.len()-2]);
-    let amount = i64::from_str_radix(std::str::from_utf8(&color[2..7]).unwrap(), 16).unwrap();
-    Plan {dir, amount}
-  }).collect();
+  let plans: Vec<_> = lines
+    .map(|line| {
+      let line = line.unwrap();
+      let [_dir, _amount, color]: [&str; 3] =
+        line.split(' ').collect::<Vec<&str>>().try_into().unwrap();
+      let color = color.as_bytes().to_vec();
+      let dir = Direction::from(color[color.len() - 2]);
+      let amount = i64::from_str_radix(std::str::from_utf8(&color[2..7]).unwrap(), 16).unwrap();
+      Plan { dir, amount }
+    })
+    .collect();
   let mut row = 0;
   let mut col = 0;
   let mut row_max = 0;
@@ -195,27 +231,27 @@ fn main() {
     match plan.dir {
       Down => {
         rows_of_interest.insert(row);
-        rows_of_interest.insert(row+plan.amount);
+        rows_of_interest.insert(row + plan.amount);
         row += plan.amount
-      },
+      }
       Up => {
-        rows_of_interest.insert(row-plan.amount);
+        rows_of_interest.insert(row - plan.amount);
         rows_of_interest.insert(row);
         row -= plan.amount
-      },
+      }
       Right => {
         horizontals.push(Horizontal {
           row,
           left: col,
-          right: col + plan.amount
+          right: col + plan.amount,
         });
         col += plan.amount
-      },
+      }
       Left => {
         horizontals.push(Horizontal {
           row,
           left: col - plan.amount,
-          right: col
+          right: col,
         });
         col -= plan.amount
       }
@@ -225,24 +261,33 @@ fn main() {
     row_min = min(row, row_min);
     col_max = max(col, col_max);
     col_min = min(col, col_min);
-  };
-  let mut current_intervals = Intervals {v: Vec::new()};
+  }
+  let mut current_intervals = Intervals { v: Vec::new() };
   current_intervals.init(Interval {
     left: col_min - 1,
     right: col_max + 2,
-    state: Outside
+    state: Outside,
   });
   let mut answer = 0;
   let rows_of_interest: Vec<i64> = rows_of_interest.iter().copied().collect();
   for (i, &row) in rows_of_interest.iter().enumerate() {
     let to_process = horizontals.iter().filter(|x| x.row == row);
-    let to_process_first: Vec<_> = to_process.clone().filter(|x| current_intervals.get_state(x.left, x.right) == Outside).collect();
-    let to_process_second: Vec<_> = to_process.filter(|x| current_intervals.get_state(x.left, x.right) == Inside).collect();
-    to_process_first.iter().for_each(|&Horizontal {left, right, ..}| current_intervals.flip(*left, *right));
+    let to_process_first: Vec<_> = to_process
+      .clone()
+      .filter(|x| current_intervals.get_state(x.left, x.right) == Outside)
+      .collect();
+    let to_process_second: Vec<_> = to_process
+      .filter(|x| current_intervals.get_state(x.left, x.right) == Inside)
+      .collect();
+    to_process_first
+      .iter()
+      .for_each(|&Horizontal { left, right, .. }| current_intervals.flip(*left, *right));
     answer += current_intervals.get_num_inside();
-    if i != rows_of_interest.len()-1 {
-      to_process_second.iter().for_each(|&Horizontal {left, right, ..}| current_intervals.flip(*left, *right));
-      let next_row = rows_of_interest[i+1];
+    if i != rows_of_interest.len() - 1 {
+      to_process_second
+        .iter()
+        .for_each(|&Horizontal { left, right, .. }| current_intervals.flip(*left, *right));
+      let next_row = rows_of_interest[i + 1];
       let amount = (next_row - row - 1) as u64;
       answer += amount * current_intervals.get_num_inside();
     }

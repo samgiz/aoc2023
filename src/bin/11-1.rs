@@ -4,7 +4,7 @@ fn rotate(matrix: Vec<Vec<u8>>) -> Vec<Vec<u8>> {
   let mut new_matrix = vec![vec![0; matrix.len()]; matrix[0].len()];
   for i in 0..matrix.len() {
     for (j, &value) in matrix[i].iter().enumerate() {
-      new_matrix[j][matrix.len()-1-i] = value;
+      new_matrix[j][matrix.len() - 1 - i] = value;
     }
   }
   new_matrix
@@ -22,7 +22,10 @@ fn expand(matrix: Vec<Vec<u8>>) -> Vec<Vec<u8>> {
 }
 
 fn main() {
-  let initial_board: Vec<Vec<_>> = io::stdin().lines().map(|line|line.unwrap().as_bytes().to_vec()).collect();
+  let initial_board: Vec<Vec<_>> = io::stdin()
+    .lines()
+    .map(|line| line.unwrap().as_bytes().to_vec())
+    .collect();
   let board = expand(rotate(expand(initial_board)));
   let mut galaxy_locations = Vec::new();
   for i in 0..board.len() {
